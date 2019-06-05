@@ -1,0 +1,14 @@
+--- 本文件: AddFull_CORE_Buffer.TT_TableB_PureAdd.sqlCREATE DATABASE IF NOT EXISTS AddBuffer COMMENT 'hive缓冲库';use AddBuffer;drop table TT_TableB_PureAdd;create table IF NOT EXISTS TT_TableB_PureAdd(
+rowKeyStr string comment '联合主键(corporation,XT_BR_NO,XT_CURR_COD拼接)',DataDay_ID String COMMENT '数据的时间',tdh_load_timestamp  String  COMMENT'加载到TDH时的时间戳',corporation varchar(20) comment'表头_法人主体.主键',
+DAY_ID varchar(20) comment'表头_批量日期',
+XT_DATE varchar(20) comment'日期',
+XT_BR_NO varchar(20) comment'机构代码.主键',
+XT_ACCT_NO varchar(20) comment'帐号',
+XT_CURR_COD varchar(20) comment'币别.主键',
+XT_CURR_IDEN varchar(20) comment'钞汇鉴别',
+XTBAL_DB_TIMESTAMP varchar(20) comment'',
+XT_CURR varchar(20) comment'币种',
+XT_CR_AMT varchar(20) comment'贷方发生额',
+XT_DR_AMT varchar(20) comment'借方发生额',
+XT_BAL varchar(20) comment'余额',
+Data_source String COMMENT'数据来源')comment 'TT_TableB汉语注解.单纯增量表' stored as ORC;----集合运算。计算出：本次全增量中的单纯增量/删除档。并进行分类存储。-------集合运算中：使用最新的 全增量 和 昨天的贴源全量数据层 进行运算。-------单纯增量计算结束后，在进行更新 最新的贴源全量数据层表。insert into AddBuffer.TT_TableB_PureAdd select sss.rowKeyStr,TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd'),to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss'),sss.corporation,sss.DAY_ID,sss.XT_DATE,sss.XT_BR_NO,sss.XT_ACCT_NO,sss.XT_CURR_COD,sss.XT_CURR_IDEN,sss.XTBAL_DB_TIMESTAMP,sss.XT_CURR,sss.XT_CR_AMT,sss.XT_DR_AMT,sss.XT_BAL,sss.Data_source from (select rowKeyStr,corporation,DAY_ID,XT_DATE,XT_BR_NO,XT_ACCT_NO,XT_CURR_COD,XT_CURR_IDEN,XTBAL_DB_TIMESTAMP,XT_CURR,XT_CR_AMT,XT_DR_AMT,XT_BAL,Data_sourcefrom AddAnticipate.TT_TableBEXCEPTselect rowKeyStr,corporation,DAY_ID,XT_DATE,XT_BR_NO,XT_ACCT_NO,XT_CURR_COD,XT_CURR_IDEN,XTBAL_DB_TIMESTAMP,XT_CURR,XT_CR_AMT,XT_DR_AMT,XT_BAL,Data_source from AddBuffer.TT_TableB_TotalHbase) sss ; ----将删除掉的数据，插入到删除档。长期积累。insert into AddBuffer.AddPureDelete select to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss'),'AddBuffer.TT_TableB',sss.rowKeyStr ,SYSDATE from (select rowKeyStrfrom AddBuffer.TT_TableB_TotalHbaseEXCEPTselect rowKeyStr from AddAnticipate.TT_TableB) sss;set hive.enforce.bucketing = true;set hive.exec.dynamic.partition=true;set hive.exec.dynamic.partition.mode=nonstrict;SET hive.exec.max.dynamic.partitions=100000;SET hive.exec.max.dynamic.partitions.pernode=100000;insert into CoreBankHist.TT_TableB PARTITION(partition_month) select  *,TDH_TODATE(DataDay_ID,'yyyyMM') as partition_month from AddAnticipate.TT_TableB where corporation in (select distinct CORPORATION from AddBuffer.dic_CORPORATION where CORPORATION_NAME in ('公共','总行' ));insert into TownBankHist.TT_TableB PARTITION(partition_month) select *,TDH_TODATE(DataDay_ID,'yyyyMM') as partition_month from AddAnticipate.TT_TableB where corporation in (select distinct CORPORATION from AddBuffer.dic_CORPORATION where CORPORATION_NAME in ('公共','村镇' ));!q
