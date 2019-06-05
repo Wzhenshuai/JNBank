@@ -22,10 +22,11 @@ if (os.path.exists(out_file_path)):
     os.remove(out_file_path)
 
 def exec():
-    numIndex = 0;
+    numIndex = 0
+    inputAdpend = ""
     for td in table_datas:
-
         numIndex += 1
+        print(numIndex)
         if td[1].upper() == 'F_CM_SPSRC_VIEW':
             continue
         tableName = system_nu.upper() + '_' + td[1].lower()
@@ -76,9 +77,17 @@ def exec():
         create_str = drop_table_str + 'create table IF NOT EXISTS ' + tableName + ' (\r' + fieldStr.rstrip(',\r') + "\r)comment '"+ tableCommenStr + "' partitioned by(partition_month varchar(33))\r " \
                               "clustered by (rowKeyStr) into 13 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r\r"
 
-        f = open(out_file_path, "a+", encoding='utf-8')
-        f.write(create_str)
-        f.close()
+        if numIndex % 100 == 0:
+            f = open(out_file_path, "a+", encoding='utf-8')
+            f.write(inputAdpend)
+            inputAdpend = "";
+            f.close()
+        else:
+            inputAdpend = inputAdpend + create_str
+
+    f = open(out_file_path, "a+", encoding='utf-8')
+    f.write(inputAdpend)
+    f.close()
     return numIndex
 
 
