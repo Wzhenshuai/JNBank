@@ -32,14 +32,17 @@ for ta in allTable:
     cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag "
                    "FROM table_field where scheme_key ='%s'" % (ta[0]))
     allField = cursor.fetchall()
-    table_name = shortName + "_" + tableName.lower()
+    #table_name = shortName + "_" + tableName.lower()
+    catalog = shortName + "_" + tableName.lower()
+    table_name = "Town_" + catalog
+    file_sql_name = "AllDataAnalyze.%s.sql" % ("Town." + catalog)
 
     exe_table_name = (ta[0])
-    file_sql_name = "AllDataAnalyze.%s.sql" % (table_name)
 
     #print(fields)
     ## 拼接创建表 语句操作
-    create_table_str = "create external table IF NOT EXISTS %s(\n" %(table_name)
+    create_table_str = "create external table IF NOT EXISTS %s(\n" % table_name
+    i = 0
     for i in allField:
         comm = i[4]
         if comm == '':
@@ -47,9 +50,13 @@ for ta in allTable:
         key_comm = i[5]
         if key_comm == '是':
             comm = comm+'.主键'
+        if i[0] == 'corporation':
+            i = 1
         create_table_str = create_table_str+("%s string comment '%s',\n")%(i[0],comm)
-    create_table_str = create_table_str.rstrip(",\n")+"\r)comment '%s汉语注解'partitioned by(corporation string) row format delimited fields terminated by '\\u0003' \r" \
-                                                      "stored as textfile location '/DATACENTER/AllData/%s/%s';" % (table_name, shortName,table_name)
+    if i == 0:
+        create_table_str = "'corporation' String comment '法人行号_主鍵',\n"+create_table_str
+    create_table_str = create_table_str.rstrip(",\n")+"\r)comment '%s汉语注解' row format delimited fields terminated by '\\u0003' \r" \
+                                                      "stored as textfile location '/DATACENTER/AllData/CREDIT/TownBank/%s';" % (table_name, catalog)
     ## 插入语句拼接
     insert_str = "insert into AllAnalyzeTablesCount select\n " \
                  "to_timestamp(SYSDATE, 'yyyy-MM-dd HH:mm:ss')\n" \
