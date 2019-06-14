@@ -9,7 +9,8 @@ conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde'
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
-system_name = sys.argv[1]
+#system_name = sys.argv[1]
+system_name = 'credit'
 
 # 获取所有表
 dictSql = "SELECT sql_path,system_code FROM dic_info_mapping WHERE transfer_mode ='全量铺底数据' AND system_code='" + system_name + "'"
@@ -27,52 +28,44 @@ allTable = cursor.fetchall()
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
 os.chdir(sqlPath)
+
 for ta in allTable:
     schemeKey = ta[0]
     tableName = ta[1]
+
     cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag "
                    "FROM table_field where scheme_key ='%s'" % (ta[0]))
     allField = cursor.fetchall()
     table_name = shortName + "_" + tableName.lower()
-    file_sql_name = "AllDataShunt.%s.sql" % "Town."+table_name
+    file_sql_name = "AllDataShunt.Town.%s.sql" %table_name
     ## 拼接创建表 语句操作
-    create_table_str = "create table IF NOT EXISTS %s(\n" %table_name
     insert_TownBankHist_str = "insert into TownBankHist.%s PARTITION(partition_month) select\n " % table_name
 
-    unite_key_file = "联合主键("
-    unite_key_value = "concat_ws('^',"
+    unite_key_file = ""
     insert_table_str = ""
+    insert_fieldStr = ''
+    create_fieldStr = ''
+    aaa = 0
     for fie in allField:
         key_comm = fie[5]
+        if fie[0].upper() == 'CORPORATION':
+            aaa = 1
         if key_comm == '是':
             unite_key_file = unite_key_file + fie[0] + ','
-            unite_key_value = unite_key_value + fie[0] + ','
-    create_table_str = create_table_str + "rowKeyStr varchar(333) comment '"
-    create_table_str = create_table_str + unite_key_file.rstrip(",") + "拼接)'," \
-                                                                       "\rDataDay_ID varchar(33) COMMENT'数据的时间'," \
-                                                                       "\rtdh_load_timestamp  varchar(33)  COMMENT'加载到TDH时的时间戳',\r" \
-                                                                       "corporation varchar(33) comment '法人行号.主键'"
+        insert_fieldStr = insert_fieldStr + fie[0] + ',\n'
+    if aaa == 0:
+        unite_key_file = 'CORPORATION,' + unite_key_file
+    insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
+                       + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
+                       + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+    if aaa == 0:
+        insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
+    else:
+        insert_table_str = insert_table_str + insert_fieldStr
 
-    insert_table_str = 'rowkeystr,\r'+'dataday_id,\r'+'tdh_load_timestamp,\r'+ 'corporation,\r'
-    for i in allField:
-        comm = i[4]
-        if comm == '':
-            com = "''"
-        key_comm = i[5]
-        if key_comm == '是':
-            comm = comm+'.主键'
-        field_type = coverField.convert_fieldType(i)
-        create_table_str = create_table_str + ("%s %s comment'%s',\n")%(i[0],field_type,comm)
-        insert_table_str = insert_table_str+"%s,\n"%i[0]
-    create_table_str = create_table_str+"Data_source_str varchar(33) COMMENT'数据来源'"+\
-                                                        "\r)comment '%s汉语注解' partitioned by(partition_month varchar(33))\r" \
-                                                      "clustered by (rowKeyStr) into 13 buckets stored as orc TBLPROPERTIES ('transactional'='true') ;"%(table_name)
     insert_table_str = insert_table_str +"'%s' as data_source_str,\r TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMM') as partition_month \r" %shortName
 
-    insert_TownBankHist_str = insert_TownBankHist_str+insert_table_str + "from AllAnticipate.%s where partition_corporation " \
-                                                                         "in (" \
-                                                 "select distinct CORPORATION from AddBuffer.dic_CORPORATION " \
-                                                  "in (select distinct CORPORATION_CoreBank from AddBuffer.Dic_Info_Mapping where system_code='%s')" %("Town_"+table_name,shortName)
+    insert_TownBankHist_str = insert_TownBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','615');"% ("Town_"+table_name)
 
     ## 数据写入文件
     if os.path.exists(file_sql_name):
@@ -81,9 +74,8 @@ for ta in allTable:
     f.write("--- 本文件: " + file_sql_name)
 
     f.write("\r\r\rCREATE DATABASE IF NOT EXISTS TownBankHist COMMENT '村镇.历史库';\r"
-            "use TownBankHist;\r")
-    f.write("\r\r\r" + create_table_str)
-
+            "use TownBankHist;\r "
+            "truncate table %s;\r" % table_name)
 
     f.write("\r\r\rset hive.enforce.bucketing = true;\r"
             "set hive.exec.dynamic.partition=true;\r"
