@@ -2,7 +2,7 @@
 import xlrd
 import os, sys
 
-#rootdir = r'/Users/freer/Documents/网智天元科技股份有限公司/济宁项目组/第一轮梳理表结构/BIll'
+rootdir = r'/Users/freer/Documents/网智天元科技股份有限公司/济宁项目组/第一轮梳理表结构/BIll'
 
 def list_file(rootdir,system_name):
     list = os.listdir(rootdir)

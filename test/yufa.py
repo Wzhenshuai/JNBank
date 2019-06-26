@@ -16,5 +16,11 @@ print(re.search("([0-9]*)([a-z]*)([0-9]*)", a).group(3))  # 456
 #a = a.replace('a','A').replace('二','四').replace('b','B')
 #print(b.replace(';', ':'))
 fieldType = 'timestamp(30)'
+aa = fieldType.split('(')[0]
+print(aa)
 if fieldType in ('time', 'date', 'timestamp','timestamp(30)'):
     print(fieldType)
+ty = 'INDEX'
+if ty == 'INDEX':
+    ty = '"INDEX"'
+print(ty)
