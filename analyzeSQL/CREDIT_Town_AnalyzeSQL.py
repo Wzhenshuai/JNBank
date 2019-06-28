@@ -1,6 +1,6 @@
-#生成村镇 解析sql
-# coding=utf-8
 
+# coding=utf-8
+### 生成 信贷平台 村镇 解析sql
 import pymysql
 import os,sys
 

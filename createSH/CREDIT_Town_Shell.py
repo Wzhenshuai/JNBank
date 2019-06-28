@@ -1,5 +1,5 @@
 # coding=utf-8
-
+#### 仅用于 信贷 村镇表 的生成
 import pymysql
 import os, sys
 
@@ -11,50 +11,46 @@ conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde'
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
 cursor.execute(
-    "SELECT en_name,system_en_name FROM table_scheme WHERE system_name = '%s' AND or_extract = '是'" %systemUpper)
+    "SELECT en_name,system_en_name FROM table_scheme WHERE system_name = '%s' AND or_extract = '是' and core_town = '1'" %systemUpper)
 table_datas = cursor.fetchall()
 
 dictSql = "SELECT shell_path,system_code FROM dic_info_mapping WHERE transfer_mode ='全量铺底数据' AND system_code='" + systemUpper + "'"
 cursor.execute(dictSql)
 path_data = cursor.fetchall()
 
-if systemUpper == 'CREDIT':
-    outPath = path_data[0][0].split('|')[0]
-else:
-    outPath = path_data[0][0]
-# 模版路径
+outPath = path_data[0][0].split('|')[1]
 
-allTempFilePath = r"E:\mnt\template\CREDIT.shell\Core_agentShell\AllData.Core.SHORTNAME_tablename.sh"
+# 模版路径
+allTempFilePath = r"E:\mnt\template\CREDIT.shell\Town_agentShell\AllData.Town.SHORTNAME_tablename.sh"
+
+## 输出路径
+#outPath = r"E:\济宁银行\pudi\All_shell\CREDIT\Town_agentShell/"
 
 filePath = ''
 out_file_path = ''
-field1 = "select '815' as corporation ,"
+field1 = "select '615' as corporation ,"
 numIndex = 0
 for td in table_datas:
-
+    numIndex += 1
     tableLower = td[0].lower()
     tableUpper = td[0].upper()
     scheme_key = td[1]
-    numIndex += 1
-    cursor.execute("SELECT  field_code,field_type FROM table_field WHERE scheme_key = '%s' ORDER BY cast(ord_number as SIGNED INTEGER)" % scheme_key)
+    cursor.execute("SELECT  field_code,field_type FROM table_field WHERE scheme_key = '%s'and core_town = '1' ORDER BY cast(ord_number as SIGNED INTEGER)" % scheme_key)
     field_datas = cursor.fetchall()
     fieldStr = ''
     for fd in field_datas:
-        ty = fd[0].upper()
-        if ty == 'INDEX':
-            ty = '"INDEX"'
-        if fd[1].upper() in ('CHAR', 'NCHAR', 'VARCHAR', 'NVARCHAR', 'GRAPHIC', 'VARBRAPHIC', 'CHARACTER','VARCHAR2',
-                             'NVARCHAR2','LANG','EVALUATE_RECORD','MAINTAIN_INFO','MAINTAIN_INFO',
-                             'LAWSUIT_APPLY','LAWCASE_INFO','BUSINESS_CONTRACT','ASSET_INFO','BUSINESS_APPROVE'):
-            fieldStr = fieldStr + "trim("+ty+"),"
+        if fd[1].upper() in ('CHAR', 'NCHAR', 'VARCHAR', 'NVARCHAR', 'GRAPHIC', 'VARBRAPHIC', 'CHARACTER',
+                             'VARCHAR2','NVARCHAR2','XMLTYPE','LONG VARCHAR','LANG'):
+            fieldStr = fieldStr + "trim("+fd[0]+"),"
         else:
-            fieldStr = fieldStr + ty + ','
+            fieldStr = fieldStr + fd[0] + ','
         if fd[0].upper() == 'CORPORATION':
             field1 = "select "
-    fieldStr = field1 + fieldStr.rstrip(',')+' from reader.${source_Table} where \$CONDITIONS'
+
+    fieldStr = field1 + fieldStr.rstrip(',')+' from ${source_Table} where \$CONDITIONS'
     systemTable = systemUpper + '_' + tableLower
 
-    out_file_path = os.path.join(outPath, "AllData.Core.%s.sh" % systemTable)
+    out_file_path = os.path.join(outPath, "AllData.Town.%s.sh" % systemTable)
 
     if os.path.exists(out_file_path):
         os.remove(out_file_path)

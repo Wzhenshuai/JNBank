@@ -1,6 +1,6 @@
-#生成总行 解析sql
-# coding=utf-8
 
+# coding=utf-8
+### 生成 信贷平台 总行 解析sql
 import pymysql
 import os,sys
 

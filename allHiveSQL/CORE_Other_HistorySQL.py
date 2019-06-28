@@ -1,5 +1,5 @@
 #coding=utf-8
-
+### 用于数整 其它表生成铺底 建表（历史库）
 import pymysql
 import os, sys
 import coverField
@@ -11,13 +11,13 @@ conn = pymysql.connect(host='127.0.0.1',user='root',password='woshibangbangde',d
 cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
 
 #cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='credit' AND or_extract='是'")
-cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s'  and  substring_index(system_en_name,'_',2)='%s' AND or_extract = '是' " %(system_nu,system_core))
+cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme where system_en_name in ('CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')")
 table_datas = cursor.fetchall()
 
 
 path = r"E:\mnt\JN_shell\Create_tables\AllData"
 
-out_file_path = os.path.join(path, "%s_ODS_hive_SQL.sql" % system_nu)
+out_file_path = os.path.join(path, "%s_other_History_SQL.sql" % system_nu)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)

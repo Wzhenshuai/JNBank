@@ -3,32 +3,31 @@
 import pymysql
 import os, sys
 
-systemUpper = sys.argv[1].upper()
-# systemUpper = 'credit'.upper()
+##  仅用于数整 除ODS F RPT 之外的表，指定的几个表
+
+system_nu = sys.argv[1].upper()
+systemUpper = 'CORE'
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
 cursor.execute(
-    "SELECT en_name,system_en_name FROM table_scheme WHERE system_name = '%s' AND or_extract = '是'" %systemUpper)
+    "SELECT en_name,system_en_name FROM table_scheme WHERE  system_en_name in ('CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')")
 table_datas = cursor.fetchall()
 
 dictSql = "SELECT shell_path,system_code FROM dic_info_mapping WHERE transfer_mode ='全量铺底数据' AND system_code='" + systemUpper + "'"
 cursor.execute(dictSql)
 path_data = cursor.fetchall()
 
-if systemUpper == 'CREDIT':
-    outPath = path_data[0][0].split('|')[0]
-else:
-    outPath = path_data[0][0]
+outPath = path_data[0][0]
 # 模版路径
 
 allTempFilePath = r"E:\mnt\template\CREDIT.shell\Core_agentShell\AllData.Core.SHORTNAME_tablename.sh"
 
 filePath = ''
 out_file_path = ''
-field1 = "select '815' as corporation ,"
+field1 = "select '800' as corporation ,"
 numIndex = 0
 for td in table_datas:
 
@@ -44,8 +43,8 @@ for td in table_datas:
         if ty == 'INDEX':
             ty = '"INDEX"'
         if fd[1].upper() in ('CHAR', 'NCHAR', 'VARCHAR', 'NVARCHAR', 'GRAPHIC', 'VARBRAPHIC', 'CHARACTER','VARCHAR2',
-                             'NVARCHAR2','LANG','EVALUATE_RECORD','MAINTAIN_INFO','MAINTAIN_INFO',
-                             'LAWSUIT_APPLY','LAWCASE_INFO','BUSINESS_CONTRACT','ASSET_INFO','BUSINESS_APPROVE'):
+                             'NVARCHAR2','LANG','EVALUATE_RECORD','MAINTAIN_INFO','MAINTAIN_INFO','LAWSUIT_APPLY',
+                             'LAWCASE_INFO','BUSINESS_CONTRACT','ASSET_INFO','BUSINESS_APPROVE'):
             fieldStr = fieldStr + "trim("+ty+"),"
         else:
             fieldStr = fieldStr + ty + ','

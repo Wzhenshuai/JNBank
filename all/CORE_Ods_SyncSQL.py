@@ -1,5 +1,5 @@
 #coding=utf-8
-
+## 仅用于 数整 ODS表的同步
 import pymysql
 import os, sys
 

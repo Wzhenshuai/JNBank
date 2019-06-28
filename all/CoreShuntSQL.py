@@ -1,5 +1,5 @@
 #coding=utf-8
-
+## 仅用于 除（信贷村镇、数整）表的分流
 import pymysql
 import os, sys
 
@@ -8,18 +8,19 @@ conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde'
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
-system_nu = sys.argv[1]
-system_name = 'CORE'
+system_name = sys.argv[1]
+#system_name = 'credit'
 
 # 获取所有表
 dictSql = "SELECT sql_path,system_code FROM dic_info_mapping WHERE transfer_mode ='全量铺底数据' AND system_code='" + system_name + "'"
 cursor.execute(dictSql)
 table_data = cursor.fetchall()
 
-sqlPath = table_data[0][0].upper()
+sqlPath = table_data[0][0]
 shortName = table_data[0][1].upper()
 
-selectTableSql = "SELECT system_en_name,en_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是' and  substring_index(system_en_name,'_',2)='%s'" % (system_name,system_nu)
+selectTableSql = "SELECT system_en_name,en_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是'" % (
+    system_name)
 cursor.execute(selectTableSql)
 allTable = cursor.fetchall()
 
@@ -39,7 +40,6 @@ for ta in allTable:
     file_sql_name = "AllDataShunt.Core.%s.sql" % table_name
     ## 拼接创建表 语句操作
     insert_CoreBankHist_str = "insert into CoreBankHist.%s PARTITION(partition_month) select\n " % table_name
-    insert_TownBankHist_str = "insert into TownBankHist.%s PARTITION(partition_month) select\n " % table_name
 
     unite_key_file = ""
     insert_table_str = ""
@@ -66,14 +66,14 @@ for ta in allTable:
     insert_table_str = insert_table_str +"'%s' as data_source_str,\r TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMM') as partition_month \r" % shortName
     insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','815');" % ("Core_"+table_name)
 
-    insert_TownBankHist_str = insert_TownBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','615');" % ("Core_"+table_name)
     ## 数据写入文件
     if os.path.exists(file_sql_name):
         os.remove(file_sql_name)
     f = open(file_sql_name, "a+", encoding= 'utf-8')
     f.write("--- 本文件: " + file_sql_name)
-    f.write("\r truncate table CoreBankHist.%s;\r" % table_name)
-    f.write("truncate table TownBankHist.%s;\r" % table_name)
+    f.write("\rCREATE DATABASE IF NOT EXISTS CoreBankHist COMMENT '总行.历史库';\r"
+            "use CoreBankHist;\r"
+            "truncate table %s;\r" % table_name )
 
     f.write("\r\r\rset hive.enforce.bucketing = true;\r"
             "set hive.exec.dynamic.partition=true;\r"
@@ -82,9 +82,6 @@ for ta in allTable:
             "SET hive.exec.max.dynamic.partitions.pernode=100000;\r")
 
     f.write("\r\r\r"+insert_CoreBankHist_str)
-
-    f.write("\r\r")
-    f.write("\r\r\r" + insert_TownBankHist_str)
     f.write("\r\r!q")
     f.close()
 print(str(numIndex)+"张表操作完成！！！")

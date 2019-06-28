@@ -1,24 +1,24 @@
-#生成总行 解析sql
-# coding=utf-8
 
+# coding=utf-8
+### 生成 数整平台 其它表的 解析sql
 import pymysql
 import os,sys
 
-system_nu = sys.argv[1].upper()
-#system_nu = 'JFCORE'
+system_ods = sys.argv[1].upper()
+system_nu = 'CORE'
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
 cursor.execute(
-    "SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是'" % system_nu)
+    "SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE  system_en_name in ('CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')")
 
 table_datas = cursor.fetchall()
 
 path = r"E:\mnt\JN_shell\Create_tables\AllAnalyze"
 
-out_file_path = os.path.join(path, "%s.Core.DataAnalyze.sql" % system_nu)
+out_file_path = os.path.join(path, "%s.Core.OTHER.DataAnalyze.sql" % system_nu)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)
@@ -42,7 +42,7 @@ def exec():
         cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag FROM table_field where scheme_key ='%s' order by cast(ord_number as SIGNED INTEGER)" % td[0])
 
         field_datas = cursor.fetchall()
-        boday = "DROP TABLE IF EXISTS Core_%s; \r create external table IF NOT EXISTS Core_%s(\r" % (tableName, tableName)
+        boday = "DROP TABLE IF EXISTS Core_%s; \r create external table IF NOT EXISTS Core_%s(\r" %(tableName,tableName)
         corporationStr = "`corporation` String comment '法人行号_主鍵',\r"
 
         fieldStr = ''

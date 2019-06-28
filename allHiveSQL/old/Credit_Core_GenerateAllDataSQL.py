@@ -1,6 +1,6 @@
-#生成历史库建表语句 不区分 or_extract='是'or 否
-#coding=utf-8
 
+#coding=utf-8
+#生成信贷 总行 历史库建表语句 抽取or_extract='是' 因为表太多
 import pymysql
 import os,sys
 import coverField
@@ -11,7 +11,7 @@ conn = pymysql.connect(host='127.0.0.1',user='root',password='woshibangbangde',d
 #第二步：创建游标  对象
 cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
 
-cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='CREDIT'  and core_town = '1' AND or_extract = '是' " )
+cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='CREDIT' AND or_extract = '是' " )
 table_datas = cursor.fetchall()
 
 
@@ -25,7 +25,7 @@ if (os.path.exists(out_file_path)):
 def exec():
     numIndex = 0
     f = open(out_file_path, "a+", encoding='utf-8')
-    f.write("CREATE DATABASE IF NOT EXISTS TownBankHist COMMENT '村镇.历史库';\n use TownBankHist;\r")
+    f.write("CREATE DATABASE IF NOT EXISTS CoreBankHist COMMENT '总行.历史库';\n use CoreBankHist;\r")
     f.close()
     for td in table_datas:
         numIndex += 1
@@ -34,7 +34,7 @@ def exec():
         tableName = shortName.upper() + '_' + td[1].lower()
         tableCommenStr = td[1]+td[2]
 
-        cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag FROM table_field where scheme_key ='%s' and core_town = '1' order by cast(ord_number as SIGNED INTEGER)" % td[0])
+        cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag FROM table_field where scheme_key ='%s' order by cast(ord_number as SIGNED INTEGER)" % td[0])
 
         field_datas = cursor.fetchall()
         corporationStr = "`corporation` varchar(33) comment'法人主体.主键',\r"

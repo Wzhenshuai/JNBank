@@ -1,5 +1,5 @@
 #coding=utf-8
-
+##  被 CoreShell.py 取代 没加 trim()
 import pymysql
 import os, sys
 

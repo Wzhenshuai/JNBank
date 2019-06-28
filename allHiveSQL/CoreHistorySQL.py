@@ -1,6 +1,7 @@
-#生成历史库建表语句 不区分 or_extract='是'or 否
+
 #coding=utf-8
 
+#生成 除（信贷、数整）的历史库建表语句 条件 or_extract='是' 表太多
 import pymysql
 import os,sys
 import coverField
@@ -17,7 +18,7 @@ table_datas = cursor.fetchall()
 
 path = r"E:\mnt\JN_shell\Create_tables\AllData"
 
-out_file_path = os.path.join(path, "%s_AllData_SQL.sql" % system_nu)
+out_file_path = os.path.join(path, "%s_History_SQL.sql" % system_nu)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)

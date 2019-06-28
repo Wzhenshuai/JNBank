@@ -1,6 +1,5 @@
 import pymysql
 import os,sys
-from All3 import coverField
 
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)
