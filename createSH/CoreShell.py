@@ -43,7 +43,7 @@ for td in table_datas:
     for fd in field_datas:
         ty = fd[0].upper()
         if ty == 'INDEX':
-            ty = '"INDEX"'
+            ty = '\\"INDEX\\"'
         if fd[1].upper() in ('CHAR', 'NCHAR', 'VARCHAR', 'NVARCHAR', 'GRAPHIC', 'VARBRAPHIC', 'CHARACTER','VARCHAR2',
                              'NVARCHAR2','LANG','EVALUATE_RECORD','MAINTAIN_INFO','MAINTAIN_INFO',
                              'LAWSUIT_APPLY','LAWCASE_INFO','BUSINESS_CONTRACT','ASSET_INFO','BUSINESS_APPROVE'):

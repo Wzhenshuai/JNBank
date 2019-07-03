@@ -29,6 +29,8 @@ os.chdir(sqlPath)
 
 numIndex = 0
 for ta in allTable:
+    if ta[1].upper() == 'F_CM_SPSRC_VIEW':
+        continue
     numIndex += 1
     schemeKey = ta[0]
     tableName = ta[1]
@@ -55,9 +57,14 @@ for ta in allTable:
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
     if aaa == 0:
         unite_key_file = 'CORPORATION,' + unite_key_file
-    insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                       + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
-                       + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+    if unite_key_file == "":
+        insert_table_str = "uniq() as rowkeystr,\r" \
+                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
+                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+    else:
+        insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
+                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
+                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:

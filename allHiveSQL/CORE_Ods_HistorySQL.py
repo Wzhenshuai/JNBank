@@ -4,7 +4,7 @@ import pymysql
 import os, sys
 import coverField
 
-system_core = sys.argv[1]
+system_core = sys.argv[1].upper()
 system_nu = 'CORE'
 conn = pymysql.connect(host='127.0.0.1',user='root',password='woshibangbangde',db='datams',charset='utf8',port=3306)
 #第二步：创建游标  对象
@@ -17,7 +17,7 @@ table_datas = cursor.fetchall()
 
 path = r"E:\mnt\JN_shell\Create_tables\AllData"
 
-out_file_path = os.path.join(path, "%s_ODS_hive_SQL.sql" % system_nu)
+out_file_path = os.path.join(path, "%s_hive_SQL.sql" % system_core)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)

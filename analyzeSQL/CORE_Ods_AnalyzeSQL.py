@@ -4,23 +4,24 @@
 import pymysql
 import os,sys
 
-system_ods = sys.argv[1].upper()
+system_st = sys.argv[1].upper()
 system_nu = 'CORE'
+system_en = 'CORE_'+system_st
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
 cursor.execute(
-    "SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是' and  substring_index(system_en_name,'_',2)='%s'" %(system_nu,system_ods))
+    "SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是' and  substring_index(system_en_name,'_',2)='%s'" %(system_nu,system_en))
 
 table_datas = cursor.fetchall()
 
 path = r"E:\mnt\JN_shell\Create_tables\AllAnalyze"
 
-out_file_path = os.path.join(path, "%s.Core.ODS.DataAnalyze.sql" % system_nu)
+out_file_path = os.path.join(path, "CORE.Core.%s.DataAnalyze.sql" % system_st)
 
-if (os.path.exists(out_file_path)):
+if os.path.exists(out_file_path):
     os.remove(out_file_path)
 
 def exec():
