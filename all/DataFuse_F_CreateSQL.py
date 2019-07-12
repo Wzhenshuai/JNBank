@@ -1,5 +1,5 @@
 #coding=utf-8
-### 用于数整 ODS表生成铺底 建表（历史库）
+### 用于数整 数据融合库，F层建表
 import pymysql
 import os, sys
 import coverField
@@ -17,7 +17,7 @@ table_datas = cursor.fetchall()
 
 path = r"E:\mnt\JN_shell\Create_tables\AllData"
 
-out_file_path = os.path.join(path, "%s_hive_SQL.sql" % system_core)
+out_file_path = os.path.join(path, "%s_DateFuseSQL.sql" % system_core)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)
@@ -50,9 +50,7 @@ for td in table_datas:
         rowKeyStrC = '联合主键(corporation,' + rowKeyStr
     else:
         rowKeyStrC = '联合主键(' + rowKeyStr
-    fieldStr = "`rowKeyStr` varchar(333) comment '" + rowKeyStrC.rstrip(',') + ")',\r" \
-               "`DataDay_ID` varchar(33) COMMENT'数据的时间',\r" \
-               "`tdh_load_timestamp`  varchar(33)  COMMENT'加载到TDH时的时间戳',\r" + corporationStr
+    fieldStr = "`rowKeyStr` varchar(333) comment '" + rowKeyStrC.rstrip(',') + ")',\r"+corporationStr
 
     for fd in field_datas:
 
@@ -68,7 +66,7 @@ for td in table_datas:
         if key_flag == '是':
             rowKeyStrC = rowKeyStrC + fd[0] + ','
             pr_key = pr_key + field_code + ','
-        tieldTypeStr = coverField.convert_fieldType(field_type, field_len, field_accuracy)
+        tieldTypeStr = coverField.convert_fieldTypeAll(field_type, field_len, field_accuracy)
         #if field_type == 'NUMBER':
         #    filed_type = 'decimal'
         if field_accuracy == "" or field_accuracy == " ":
@@ -83,8 +81,8 @@ for td in table_datas:
                 fieldStr = fieldStr + '`' + fd[0] + '` ' + tieldTypeStr + " comment '" + fd[4] + "',\r"
 
     drop_table_str = 'DROP TABLE IF EXISTS ' + tableName + ';\r'
-    fieldStr += "`Data_source_str` varchar(33) COMMENT'数据来源'"
-    create_str = drop_table_str + 'create table IF NOT EXISTS ' + tableName + ' (\r' + fieldStr.rstrip(',\r') + "\r)comment '"+ tableCommenStr + "' partitioned by(partition_year varchar(33))\r " \
+   # fieldStr += "`Data_source_str` varchar(33) COMMENT'数据来源'"
+    create_str = drop_table_str + 'create table IF NOT EXISTS ' + tableName + ' (\r' + fieldStr.rstrip(',\r') + "\r)comment '"+ tableCommenStr + "'\r " \
                           "clustered by (rowKeyStr) into 6 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r\r"
 
     f = open(out_file_path, "a+", encoding='utf-8')

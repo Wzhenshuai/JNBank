@@ -40,8 +40,8 @@ for ta in allTable:
     table_name = shortName + "_" + tableName.lower()
     file_sql_name = "AllDataShunt.Core.%s.sql" % table_name
     ## 拼接创建表 语句操作
-    insert_CoreBankHist_str = "insert into CoreBankHist.%s PARTITION(partition_month) select\n " % table_name
-    insert_TownBankHist_str = "insert into TownBankHist.%s PARTITION(partition_month) select\n " % table_name
+    insert_CoreBankHist_str = "insert into CoreBankHist.%s PARTITION(partition_year) select\n " % table_name
+    insert_TownBankHist_str = "insert into TownBankHist.%s PARTITION(partition_year) select\n " % table_name
 
     unite_key_file = ""
     insert_table_str = ""
@@ -70,7 +70,7 @@ for ta in allTable:
     else:
         insert_table_str = insert_table_str + insert_fieldStr
 
-    insert_table_str = insert_table_str +"'%s' as data_source_str,\r TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMM') as partition_month \r" % shortName
+    insert_table_str = insert_table_str +"'%s' as data_source_str,\r TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyy') as partition_year \r" % shortName
     insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','815');" % ("Core_"+table_name)
 
     insert_TownBankHist_str = insert_TownBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','615');" % ("Core_"+table_name)

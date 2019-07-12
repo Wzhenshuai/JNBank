@@ -1,5 +1,5 @@
 #coding=utf-8
-## 仅用于 数整 其它表的同步
+## 仅用于 数整 F表的同步
 import pymysql
 import os, sys
 
@@ -19,8 +19,7 @@ table_data = cursor.fetchall()
 sqlPath = 'E:\mnt\JN_shell\Create_tables\AddDataSync'
 shortName = system_name
 
-selectTableSql = "SELECT system_en_name,en_name FROM table_scheme WHERE system_en_name in ('CORE_DS_ACCOUNTING_FLOW'," \
-                 "'CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')"
+selectTableSql = "SELECT system_en_name,en_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是' and  substring_index(system_en_name,'_',2)='%s'" % (system_name,system_nu)
 cursor.execute(selectTableSql)
 allTable = cursor.fetchall()
 
@@ -39,7 +38,7 @@ for ta in allTable:
     table_name = shortName + "_" + tableName.lower()
     file_sql_name = "AllDataSync.Core.%s.sql" % table_name
     ## 拼接创建表 语句操作
-    insert_CoreBankHist_str = "insert into %s_hbase select\n " % table_name
+    insert_CoreBankHist_str = "insert into %s select\n " % table_name
 
     unite_key_file = ""
     insert_table_str = ""
@@ -56,26 +55,22 @@ for ta in allTable:
     if aaa == 0:
         unite_key_file = 'CORPORATION,' + unite_key_file
     if unite_key_file == "":
-        insert_table_str = "uniq() as rowkeystr,\r" \
-                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
-                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+        insert_table_str = "uniq() as rowkeystr,\r"
     else:
-        insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
-                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+        insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r'
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:
         insert_table_str = insert_table_str + insert_fieldStr
 
-    insert_table_str = insert_table_str +"'%s' as data_source_str\r "% shortName
-    insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str + "from AllAnalyze.%s;" % ("Core_"+table_name)
+    ##insert_table_str = insert_table_str +"'%s' as data_source_str\r "% shortName
+    insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str.rstrip(',\n') + "\rfrom AllAnalyze.%s;" % ("Core_"+table_name)
     ## 数据写入文件
     if os.path.exists(file_sql_name):
         os.remove(file_sql_name)
     f = open(file_sql_name, "a+", encoding= 'utf-8')
     f.write("--- 本文件: " + file_sql_name)
-    f.write("\r truncate table %s_hbase;\r" % table_name)
+    f.write("\r truncate table %s;\r" % table_name)
 
     f.write("\r\r\r"+insert_CoreBankHist_str)
 

@@ -69,8 +69,8 @@ def exec():
         fieldStr = fieldStr + "`Data_source_str` varchar(33) COMMENT'数据来源'"
         create_str = 'create table IF NOT EXISTS ' + tableName + ' (' \
                     '\r' + fieldStr + "\r" \
-                    ")comment '"+ tableCommenStr + "' partitioned by(partition_month varchar(33))\r " \
-                     "clustered by (rowKeyStr) into 13 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r\r"
+                    ")comment '"+ tableCommenStr + "' partitioned by(partition_year varchar(33))\r " \
+                     "clustered by (rowKeyStr) into 6 buckets stored as orc TBLPROPERTIE ('transactional'='true');\r\r\r"
 
         f = open(out_file_path, "a+", encoding='utf-8')
         f.write(drop_table_str)

@@ -19,7 +19,8 @@ table_data = cursor.fetchall()
 sqlPath = 'E:\mnt\JN_shell\Create_tables\AddDataSyncDay'
 shortName = system_name
 
-selectTableSql = "SELECT system_en_name,en_name FROM table_scheme WHERE system_en_name in ('CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')"
+selectTableSql = "SELECT system_en_name,en_name FROM table_scheme WHERE system_en_name in ('CORE_DS_ACCOUNTING_FLOW'," \
+                 "'CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')"
 cursor.execute(selectTableSql)
 allTable = cursor.fetchall()
 
@@ -54,9 +55,14 @@ for ta in allTable:
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
     if aaa == 0:
         unite_key_file = 'CORPORATION,' + unite_key_file
-    insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                       + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
-                       + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+    if unite_key_file == "":
+        insert_table_str = "uniq() as rowkeystr,\r" \
+                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
+                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+    else:
+        insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
+                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
+                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:

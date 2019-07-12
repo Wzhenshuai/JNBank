@@ -3,12 +3,12 @@
 import pymysql
 import os, sys
 
-ttm = 'BD_PSNBASDOC'
+ttm = 'BD_DEFDOC'
 # 模版路径
-filePath = r"E:\%s.sql"%ttm
+filePath = r"E:\tmp\ERPHR\ORACLE\%s.sql"%ttm
 
 ## 输出路径
-out_file_path = r"E:\tmp\%s.sql"%ttm
+out_file_path = r"E:\tmp\ERPHR\MYSQL\%s.sql"%ttm
 
 
 f = open(filePath, 'r', encoding='utf-8')
@@ -28,9 +28,9 @@ for li in lines:
     cloScle = dd[4].strip()
     cloKey = dd[5].strip()
     cloRmark = dd[6].strip()
-    sch_key = 'CORE_%s'%ttm
+    sch_key = 'ERPHR_%s'%ttm
     if cloKey != '' and cloKey != '0' and cloKey != 'null':
-        cloKey = 'xx'
+        cloKey = 'XX'
     if cloScle == '0':
         cloScle = ''
     ss = "INSERT INTO table_field(ord_number, field_code, field_type, field_len, field_accuracy, key_flag, scheme_key)" \

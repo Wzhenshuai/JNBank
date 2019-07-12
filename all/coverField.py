@@ -4,20 +4,7 @@ import re
 def convert_fieldType(fieldType):
     field_type = fieldType.lower()
     fieldLen = re.findall(r'[(](.*?)[)]',field_type)
-    #print(fieldLen[0])
     field_type_dis = field_type.split("(")[0]
-    # if field_type_dis in ('char','nchar','varchar','nvarchar','clob','blob',
-    #                   'nclob','dbclob','graphic','varbraphic','date','timestamp','time','xml'):
-    #     field_type = 'string'
-    # elif field_type_dis in ('smallint','integer','bigint','int','tinyint'):
-    #     field_type = 'bigint'
-    # elif field_type_dis == "boolean":
-    #     field_type = 'boolean'
-    # elif field_type_dis in('numeric','decimal','decfloat','real','float','double'):
-    #     field_type = 'decimal(21,8)'
-    # else:
-    #     field_type = field_type_dis;
-
     if field_type_dis in ('char','nchar','varchar','nvarchar','graphic','varbraphic'):
         field_type = 'varchar('+fieldLen[0]+')'
     elif field_type_dis in ('date','timestamp'):
@@ -66,3 +53,31 @@ def get_fields_str(fields):
         inster_field_str = inster_field_str+("%s,\n"%i[0])
 
     return create_field_str.rstrip(",\n"),inster_field_str.rstrip(",\n")
+
+def convert_fieldTypeAll(fieldType,fieldLen,fieldAccuracy):
+    fieldType = fieldType.lower()
+    if fieldType in (
+    'char', 'nchar', 'varchar', 'nvarchar', 'graphic', 'varbraphic', 'character', 'varchar2', 'nvarchar2', 'xmltype'):
+        field_type = 'varchar(' + fieldLen + ')'
+    elif fieldType in ('time', 'date', 'timestamp', 'timestamp(6)'):
+        field_type = 'varchar(30)'
+    elif fieldType in ('smallint', 'integer', 'bigint', 'int', 'tinyint'):
+        field_type = 'bigint'
+    elif fieldType == "boolean":
+        field_type = 'boolean'
+    elif fieldType in ('clob', 'blob'):
+        field_type = fieldType
+    elif fieldType in ('nclob', 'long varchar'):
+        field_type = 'clob'
+    elif fieldType in ('long raw', 'longraw', 'raw'):
+        field_type = 'blob'
+    elif fieldType == 'long':
+        field_type = 'varchar(1000)'
+    elif fieldType in ('numeric', 'decimal', 'decfloat', 'real', 'float', 'double', 'number'):
+        if fieldAccuracy == "" or fieldAccuracy == " ":
+            field_type = 'decimal(' + fieldLen + ')'
+        else:
+            field_type = 'decimal(' + fieldLen + ',' + fieldAccuracy + ')'
+    else:
+        field_type = fieldType + '(' + fieldLen + ')'
+    return field_type;

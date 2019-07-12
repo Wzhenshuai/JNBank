@@ -29,12 +29,13 @@ allTempFilePath = r"E:\mnt\template\CREDIT.shell\Core_agentShell\AllData.Core.SH
 
 filePath = ''
 out_file_path = ''
-field1 = "select '815' as corporation ,"
 numIndex = 0
 for td in table_datas:
-
+    field1 = "select '815' as corporation ,"
     tableLower = td[0].lower()
     tableUpper = td[0].upper()
+    if tableUpper == 'ACCT_FLOW':
+        print(tableLower)
     scheme_key = td[1]
     numIndex += 1
     cursor.execute("SELECT  field_code,field_type FROM table_field WHERE scheme_key = '%s' ORDER BY cast(ord_number as SIGNED INTEGER)" % scheme_key)

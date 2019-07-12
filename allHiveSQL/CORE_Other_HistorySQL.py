@@ -83,8 +83,8 @@ for td in table_datas:
 
     drop_table_str = 'DROP TABLE IF EXISTS ' + tableName + ';\r'
     fieldStr += "`Data_source_str` varchar(33) COMMENT'数据来源'"
-    create_str = drop_table_str + 'create table IF NOT EXISTS ' + tableName + ' (\r' + fieldStr.rstrip(',\r') + "\r)comment '"+ tableCommenStr + "' partitioned by(partition_month varchar(33))\r " \
-                          "clustered by (rowKeyStr) into 13 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r\r"
+    create_str = drop_table_str + 'create table IF NOT EXISTS ' + tableName + ' (\r' + fieldStr.rstrip(',\r') + "\r)comment '"+ tableCommenStr + "' partitioned by(partition_year varchar(33))\r " \
+                          "clustered by (rowKeyStr) into 6 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r\r"
 
     f = open(out_file_path, "a+", encoding='utf-8')
     f.write(create_str)

@@ -27,10 +27,10 @@ allTempFilePath = r"E:\mnt\template\CREDIT.shell\Core_agentShell\AllData.Core.SH
 
 filePath = ''
 out_file_path = ''
-field1 = "select '800' as corporation ,"
+
 numIndex = 0
 for td in table_datas:
-
+    field1 = "select '800' as corporation ,"
     tableLower = td[0].lower()
     tableUpper = td[0].upper()
     scheme_key = td[1]

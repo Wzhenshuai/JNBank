@@ -28,9 +28,10 @@ allTempFilePath = r"E:\mnt\template\CREDIT.shell\Town_agentShell\AllData.Town.SH
 
 filePath = ''
 out_file_path = ''
-field1 = "select '615' as corporation ,"
+
 numIndex = 0
 for td in table_datas:
+    field1 = "select '615' as corporation ,"
     numIndex += 1
     tableLower = td[0].lower()
     tableUpper = td[0].upper()
