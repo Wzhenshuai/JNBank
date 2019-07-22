@@ -24,8 +24,6 @@ if (os.path.exists(out_file_path)):
 numIndex = 0
 for td in table_datas:
 
-    if td[1].upper() == 'F_CM_SPSRC_VIEW':
-        continue
     numIndex = numIndex + 1
     tableName = system_nu.upper() + '_' + td[1].lower()
 
@@ -50,22 +48,15 @@ for td in table_datas:
         rowKeyStrC = '联合主键(corporation,' + rowKeyStr
     else:
         rowKeyStrC = '联合主键(' + rowKeyStr
-    fieldStr = "`rowKeyStr` varchar(333) comment '" + rowKeyStrC.rstrip(',') + ")',\r"+corporationStr
+    fieldStr = "`rowKeyStr` varchar(333) comment '主键(uniq()函数取的唯一)',\r"
 
     for fd in field_datas:
-
-        pr_key = ''
         field_code = fd[0]
         field_type = fd[1]
         field_len = fd[2]
         field_accuracy = fd[3]
         field_comment = fd[4]
         key_flag = fd[5]
-        if field_type == 'clob':
-            print('xxxo')
-        if key_flag == '是':
-            rowKeyStrC = rowKeyStrC + fd[0] + ','
-            pr_key = pr_key + field_code + ','
         tieldTypeStr = coverField.convert_fieldTypeAll(field_type, field_len, field_accuracy)
         #if field_type == 'NUMBER':
         #    filed_type = 'decimal'

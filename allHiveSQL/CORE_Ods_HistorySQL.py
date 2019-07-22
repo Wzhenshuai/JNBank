@@ -17,7 +17,7 @@ table_datas = cursor.fetchall()
 
 path = r"E:\mnt\JN_shell\Create_tables\AllData"
 
-out_file_path = os.path.join(path, "%s_hive_SQL.sql" % system_core)
+out_file_path = os.path.join(path, "%s_History_SQL.sql" % system_core)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)

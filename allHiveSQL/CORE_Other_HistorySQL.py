@@ -9,9 +9,9 @@ system_nu = 'CORE'
 conn = pymysql.connect(host='127.0.0.1',user='root',password='woshibangbangde',db='datams',charset='utf8',port=3306)
 #第二步：创建游标  对象
 cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
-
+custmerStr = "'CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST','CORE_QRY_080','CORE_DICTIONARY','CORE_ORGANIZATION'"
 #cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='credit' AND or_extract='是'")
-cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme where system_en_name in ('CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')")
+cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme where system_en_name in ("+custmerStr+")")
 table_datas = cursor.fetchall()
 
 
@@ -24,6 +24,7 @@ if (os.path.exists(out_file_path)):
 numIndex = 0
 for td in table_datas:
     numIndex = numIndex + 1
+    print(td[1].upper())
     if td[1].upper() == 'F_CM_SPSRC_VIEW':
         continue
     tableName = system_nu.upper() + '_' + td[1].lower()

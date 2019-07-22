@@ -19,8 +19,9 @@ table_data = cursor.fetchall()
 
 sqlPath = table_data[0][0].upper()
 shortName = table_data[0][1].upper()
+custmerStr = "'CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST','CORE_QRY_080','CORE_DICTIONARY','CORE_ORGANIZATION'"
 
-selectTableSql = "SELECT system_en_name,en_name FROM table_scheme where system_en_name in ('CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST')"
+selectTableSql = "SELECT system_en_name,en_name FROM table_scheme where system_en_name in ("+custmerStr+")"
 cursor.execute(selectTableSql)
 allTable = cursor.fetchall()
 
@@ -47,10 +48,14 @@ for ta in allTable:
     insert_fieldStr = ''
     create_fieldStr = ''
     aaa = 0
+    sub_flag = ""
     for fie in allField:
         key_comm = fie[5]
-        if fie[0].upper() == 'CORPORATION':
+        fieldName = fie[0].upper()
+        if fieldName == 'CORPORATION':
             aaa = 1
+        if fieldName in ('DAY_ID','BEGIN_DATE','RPT_HEAD_DATE'):
+            sub_flag = "substr(%s, 1, 4) as partition_year"%fieldName
         if key_comm == '是':
             unite_key_file = unite_key_file + fie[0] + ','
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
@@ -68,8 +73,9 @@ for ta in allTable:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:
         insert_table_str = insert_table_str + insert_fieldStr
-
-    insert_table_str = insert_table_str +"'%s' as data_source_str,\r TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyy') as partition_year \r" % shortName
+    if sub_flag == "":
+        sub_flag = "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyy') as partition_year"
+    insert_table_str = insert_table_str +"'%s' as data_source_str,\r %s \r" % (shortName,sub_flag)
     insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','815');" % ("Core_"+table_name)
 
     insert_TownBankHist_str = insert_TownBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','615');" % ("Core_"+table_name)
