@@ -1,37 +1,37 @@
 #coding=utf-8
-### 用于数整 ODS表生成铺底 建表（历史库）
-import pymysql
-import os, sys
-import coverField
+### 增量用于数整 ODS表生成铺底 建表（历史库）
+import os
+import sys
 
-system_core = sys.argv[1].upper()
+import pymysql
+
+from common import coverField
+
+system_st = sys.argv[1].upper()
 system_nu = 'CORE'
+system_en = 'CORE_'+system_st
 conn = pymysql.connect(host='127.0.0.1',user='root',password='woshibangbangde',db='datams',charset='utf8',port=3306)
 #第二步：创建游标  对象
 cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
 
 #cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='credit' AND or_extract='是'")
-cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s'  and  substring_index(system_en_name,'_',2)='%s' AND or_extract = '是' " %(system_nu,system_core))
+cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s'  and  substring_index(system_en_name,'_',2)='%s' AND or_extract = '是' " %(system_nu,system_en))
 table_datas = cursor.fetchall()
 
 
-path = r"E:\mnt\JN_shell\Create_tables\AllData"
+path = r"E:\mnt\JN_shell\Create_tables\AddBuffer"
 
-out_file_path = os.path.join(path, "%s_History_SQL.sql" % system_core)
+out_file_path = os.path.join(path, "CORE.Core.%s.AddBufferDay.sql" % system_st)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)
 numIndex = 0
 for td in table_datas:
-
-    if td[1].upper() == 'F_CM_SPSRC_VIEW':
-        continue
     numIndex = numIndex + 1
-    tableName = system_nu.upper() + '_' + td[1].lower()
+    tableName = td[1].lower()
+    COREtablename = system_nu.upper() + '_' + tableName
 
     tableCommenStr = td[1]+td[2]
-    #if tableName =='BUSINESS_UNDERWRINTING':
-    #    print(tableName)
 
     cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag "
                     "FROM table_field where scheme_key ='%s' ORDER BY cast(ord_number as SIGNED INTEGER)"%(td[0]))
@@ -42,15 +42,15 @@ for td in table_datas:
     rowKeyStrC = ''
     rowKeyStr = ''
     for fd in field_datas:
-        #if fd[5] == '是':
-         #   rowKeyStr = rowKeyStr + fd[0] + ','
+        if fd[5] == '是':
+            rowKeyStr = rowKeyStr + fd[0] + ','
         if fd[0] == 'CORPORATION':
             corporationStr = ''
-    #if corporationStr != '':
-    #    rowKeyStrC = '联合主键(corporation,' + rowKeyStr
-    #else:
-     #   rowKeyStrC = '联合主键(' + rowKeyStr
-    fieldStr = "`rowKeyStr` varchar(333) comment '主键(uniq()函数取的唯一)',\r" \
+    if corporationStr != '':
+        rowKeyStrC = '联合主键(corporation,' + rowKeyStr
+    else:
+        rowKeyStrC = '联合主键(' + rowKeyStr
+    fieldStr = "`rowKeyStr` varchar(333) comment '" + rowKeyStrC.rstrip(',') + ")',\r" \
                "`DataDay_ID` varchar(33) COMMENT'数据的时间',\r" \
                "`tdh_load_timestamp`  varchar(33)  COMMENT'加载到TDH时的时间戳',\r" + corporationStr
 
@@ -66,9 +66,8 @@ for td in table_datas:
         if key_flag == '是':
             rowKeyStrC = rowKeyStrC + fd[0] + ','
             pr_key = pr_key + field_code + ','
-        tieldTypeStr = coverField.convert_fieldType(field_type, field_len, field_accuracy)
-        #if field_type == 'NUMBER':
-        #    filed_type = 'decimal'
+        tieldTypeStr = coverField.convert_fieldTypeAll(field_type, field_len, field_accuracy)
+
         if field_accuracy == "" or field_accuracy == " ":
             if key_flag == '是':
                 fieldStr = fieldStr + '`' + fd[0] + '` ' + tieldTypeStr + " comment '" + fd[4] + '_主鍵'+"',\r"
@@ -80,10 +79,9 @@ for td in table_datas:
             else:
                 fieldStr = fieldStr + '`' + fd[0] + '` ' + tieldTypeStr + " comment '" + fd[4] + "',\r"
 
-    drop_table_str = 'DROP TABLE IF EXISTS ' + tableName + ';\r'
+    drop_table_str = 'DROP TABLE IF EXISTS ' + COREtablename + ';\r'
     fieldStr += "`Data_source_str` varchar(33) COMMENT'数据来源'"
-    create_str = drop_table_str + 'create table IF NOT EXISTS ' + tableName + ' (\r' + fieldStr.rstrip(',\r') + "\r)comment '"+ tableCommenStr + "' partitioned by(partition_year varchar(33))\r " \
-                          "clustered by (rowKeyStr) into 6 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r\r"
+    create_str = drop_table_str + 'create table IF NOT EXISTS ' + COREtablename + ' (\r' + fieldStr.rstrip(',\r') + "\r)comment '%s'\r clustered by (rowKeyStr) into 6 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r\r"%tableName.upper()
 
     f = open(out_file_path, "a+", encoding='utf-8')
     f.write(create_str)

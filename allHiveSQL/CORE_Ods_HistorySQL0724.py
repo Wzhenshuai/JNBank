@@ -42,15 +42,15 @@ for td in table_datas:
     rowKeyStrC = ''
     rowKeyStr = ''
     for fd in field_datas:
-        #if fd[5] == '是':
-         #   rowKeyStr = rowKeyStr + fd[0] + ','
+        if fd[5] == '是':
+            rowKeyStr = rowKeyStr + fd[0] + ','
         if fd[0] == 'CORPORATION':
             corporationStr = ''
-    #if corporationStr != '':
-    #    rowKeyStrC = '联合主键(corporation,' + rowKeyStr
-    #else:
-     #   rowKeyStrC = '联合主键(' + rowKeyStr
-    fieldStr = "`rowKeyStr` varchar(333) comment '主键(uniq()函数取的唯一)',\r" \
+    if corporationStr != '':
+        rowKeyStrC = '联合主键(corporation,' + rowKeyStr
+    else:
+        rowKeyStrC = '联合主键(' + rowKeyStr
+    fieldStr = "`rowKeyStr` varchar(333) comment '" + rowKeyStrC.rstrip(',') + ")',\r" \
                "`DataDay_ID` varchar(33) COMMENT'数据的时间',\r" \
                "`tdh_load_timestamp`  varchar(33)  COMMENT'加载到TDH时的时间戳',\r" + corporationStr
 
@@ -63,6 +63,8 @@ for td in table_datas:
         field_accuracy = fd[3]
         field_comment = fd[4]
         key_flag = fd[5]
+        if field_type == 'clob':
+            print('xxxo')
         if key_flag == '是':
             rowKeyStrC = rowKeyStrC + fd[0] + ','
             pr_key = pr_key + field_code + ','

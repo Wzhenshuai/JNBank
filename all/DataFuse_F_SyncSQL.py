@@ -40,7 +40,6 @@ for ta in allTable:
     ## 拼接创建表 语句操作
     insert_CoreBankHist_str = "insert into %s select\n " % table_name
 
-    unite_key_file = ""
     insert_table_str = ""
     insert_fieldStr = ''
     create_fieldStr = ''
@@ -49,15 +48,10 @@ for ta in allTable:
         key_comm = fie[5]
         if fie[0].upper() == 'CORPORATION':
             aaa = 1
-        if key_comm == '是':
-            unite_key_file = unite_key_file + fie[0] + ','
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
-    if aaa == 0:
-        unite_key_file = 'CORPORATION,' + unite_key_file
-    if unite_key_file == "":
-        insert_table_str = "uniq() as rowkeystr,\r"
-    else:
-        insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r'
+
+    insert_table_str = "uniq() as rowkeystr,\r"
+
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:

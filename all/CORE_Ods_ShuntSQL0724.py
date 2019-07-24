@@ -43,6 +43,7 @@ for ta in allTable:
     insert_CoreBankHist_str = "insert into CoreBankHist.%s PARTITION(partition_year) select\n " % table_name
     insert_TownBankHist_str = "insert into TownBankHist.%s PARTITION(partition_year) select\n " % table_name
 
+    unite_key_file = ""
     insert_table_str = ""
     insert_fieldStr = ''
     create_fieldStr = ''
@@ -55,11 +56,19 @@ for ta in allTable:
             aaa = 1
         if fieldName in ('DAY_ID','BEGIN_DATE','RPT_HEAD_DATE'):
             sub_flag = "substr(%s, 1, 4) as partition_year"%fieldName
+        if key_comm == '是':
+            unite_key_file = unite_key_file + fie[0] + ','
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
-
-    insert_table_str = "uniq() as rowkeystr,\r" \
-                       + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
-                       + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+    if aaa == 0:
+        unite_key_file = 'CORPORATION,' + unite_key_file
+    if unite_key_file == "":
+        insert_table_str = "uniq() as rowkeystr,\r" \
+                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
+                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+    else:
+        insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
+                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
+                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:
