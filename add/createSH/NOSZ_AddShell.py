@@ -3,11 +3,11 @@
 ### 仅用于 数整 ODS 生成shell的抽取
 
 import os, sys
-from common import ComparUtile,login
+from common import ComparUtile,LoginUtile
 
 system_na = sys.argv[1].upper()
-systemUpper = 'CORE'
-conn = login.mysqlLogin()
+systemUpper = system_na
+conn = LoginUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 

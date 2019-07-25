@@ -1,13 +1,12 @@
 # coding=utf-8
 
 ### 仅用于 数整 ODS 生成shell的抽取
-
-import pymysql
 import os, sys
+from common import LoginUtile
 
 system_na = sys.argv[1].upper()
 systemUpper = system_na.upper()
-conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',port=3306)
+conn = LoginUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
