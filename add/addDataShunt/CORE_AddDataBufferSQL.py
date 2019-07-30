@@ -1,17 +1,16 @@
 #coding=utf-8
-## 仅用于 增量表的分流
+## 缓冲数据层:计算该表的 单纯增量数据，以及贴源层全量数据
 import os, sys
-from common import LoginUtile
+from common import SqlUtile
 
-conn = LoginUtile.mysqlLogin()
+conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
-
 system_nu = sys.argv[1]
 system_name = 'CORE'
 
 # 获取所有表
-dictSql = "SELECT sql_path,system_code FROM dic_info_mapping WHERE transfer_mode ='全量铺底数据' AND system_code='" + system_name + "'"
+dictSql = "SELECT sql_path,system_code FROM dic_info_mapping WHERE transfer_mode ='增量数据' AND system_code='" + system_name + "'"
 cursor.execute(dictSql)
 table_data = cursor.fetchall()
 
@@ -37,24 +36,23 @@ for ta in allTable:
                    "FROM table_field where scheme_key ='%s' order by cast(ord_number as SIGNED INTEGER)" % (ta[0]))
     allField = cursor.fetchall()
     table_name = shortName + "_" + tableName.lower()
-    file_sql_name = "AllDataShunt.Core.%s.sql" % table_name
+    file_sql_name = "AddDataBuffer.Core.%s.sql" % table_name
     ## 拼接创建表 语句操作
-    insert_CoreBankHist_str = "insert into CoreBankHist.%s PARTITION(partition_year) select\n " % table_name
-    insert_TownBankHist_str = "insert into TownBankHist.%s PARTITION(partition_year) select\n " % table_name
+    insert_tableName_str = "insert into %s \r " % table_name
+    insert_tableName_Hbase_str = "insert into %s_Hbase select\r " % table_name
+
 
     unite_key_file = ""
     insert_table_str = ""
     insert_fieldStr = ''
     create_fieldStr = ''
     aaa = 0
-    sub_flag = ""
     for fie in allField:
         key_comm = fie[5]
         fieldName = fie[0].upper()
         if fieldName == 'CORPORATION':
             aaa = 1
-        if fieldName in ('DAY_ID','BEGIN_DATE','RPT_HEAD_DATE'):
-            sub_flag = "substr(%s, 1, 4) as partition_year"%fieldName
+
         if key_comm == '是':
             unite_key_file = unite_key_file + fie[0] + ','
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
@@ -62,30 +60,29 @@ for ta in allTable:
         unite_key_file = 'CORPORATION,' + unite_key_file
     if unite_key_file == "":
         insert_table_str = "uniq() as rowkeystr,\r" \
-                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
-                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
+                           + "SYSDATE  as tdh_load_timestamp, \r"
     else:
-        insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                           + "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyyMMdd') as dataday_id,\r" \
-                           + "to_timestamp(SYSDATE,'yyyy-MM-dd HH:mm:ss') as tdh_load_timestamp, \r"
+        insert_table_str = "select concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
+                           + "SYSDATE  as tdh_load_timestamp, \r"
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:
         insert_table_str = insert_table_str + insert_fieldStr
-    if sub_flag == "":
-        sub_flag = "TDH_TODATE(SYSDATE+TO_DAY_INTERVAL(-1),'yyyy') as partition_year"
-    insert_table_str = insert_table_str + "'%s' as data_source_str,\r %s  \r" % (shortName,sub_flag)
 
-    insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','815');" % ("Core_"+table_name)
+    insert_table_str = insert_table_str + "'%s' as data_source_str \r" % shortName
 
-    insert_TownBankHist_str = insert_TownBankHist_str+insert_table_str + "from AllAnalyze.%s where corporation in ('800','615');" % ("Core_"+table_name)
+    insert_tableName_Hbase_field_str = "rowkeystr,\r dataday_id,\r tdh_load_timestamp,\r"+ insert_fieldStr
+    insert_tableName_str = insert_tableName_str+insert_table_str + "from AddAnalyze.Core_%s ;" % table_name
+
+    insert_tableName_Hbase_str = insert_tableName_Hbase_str+insert_tableName_Hbase_field_str + "from %s ;" % table_name
+
     ## 数据写入文件
     if os.path.exists(file_sql_name):
         os.remove(file_sql_name)
     f = open(file_sql_name, "a+", encoding= 'utf-8')
     f.write("--- 本文件: " + file_sql_name)
-    f.write("\r truncate table CoreBankHist.%s;\r" % table_name)
-    f.write("truncate table TownBankHist.%s;\r" % table_name)
 
     f.write("\r\r\rset hive.enforce.bucketing = true;\r"
             "set hive.exec.dynamic.partition=true;\r"
@@ -93,10 +90,13 @@ for ta in allTable:
             "SET hive.exec.max.dynamic.partitions=100000;\r"
             "SET hive.exec.max.dynamic.partitions.pernode=100000;\r")
 
-    f.write("\r\r\r"+insert_CoreBankHist_str)
+    f.write("\r  use AddRollData;  ---临时使用\r")
+    f.write("truncate table %s;\r" % table_name)
+
+    f.write("\r\r\r"+insert_tableName_str)
 
     f.write("\r\r")
-    f.write("\r\r\r" + insert_TownBankHist_str)
+    f.write("\r\r\r" + insert_tableName_Hbase_str)
     f.write("\r\r!q")
     f.close()
 print(str(numIndex)+"张表操作完成！！！")
