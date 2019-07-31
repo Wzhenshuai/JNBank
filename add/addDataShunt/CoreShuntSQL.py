@@ -1,8 +1,12 @@
 #coding=utf-8
 ## 仅用于 除（信贷村镇、数整）表的分流
-import pymysql
-import os, sys
+import os
+import sys
 
+import pymysql
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)
 # 第二步：创建游标  对象

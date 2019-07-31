@@ -1,7 +1,13 @@
 #coding=utf-8
 ## 仅用于 数整 其它表的同步，指定一天的数据
+import os
+import sys
+
 import pymysql
-import os, sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import ConstantUtile
 
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)
@@ -18,7 +24,8 @@ table_data = cursor.fetchall()
 
 sqlPath = 'E:\mnt\JN_shell\Create_tables\AddDataSyncDay'
 shortName = system_name
-custmerStr = "'CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST','CORE_QRY_080','CORE_DICTIONARY','CORE_ORGANIZATION'"
+custmerStr = ConstantUtile.custmerStr
+print( custmerStr)
 
 selectTableSql = "SELECT system_en_name,en_name FROM table_scheme WHERE system_en_name in ("+custmerStr+")"
 cursor.execute(selectTableSql)

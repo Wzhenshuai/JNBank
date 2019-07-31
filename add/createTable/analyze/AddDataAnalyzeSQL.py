@@ -3,7 +3,9 @@
 ### 增量生成数整 ODS 解析sql
 import os
 import sys
-from common import SqlUtile,FieldUtile
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, FieldUtile
 
 SHORTNAME = sys.argv[1].upper()
 
@@ -14,7 +16,7 @@ cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
 else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNAME)
+    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 
 path = r"E:\mnt\JN_shell\Create_tables\AddAnalyze"
 
@@ -30,7 +32,7 @@ for td in AllSchemeResultData:
     tableChName = td[2]
 
     headStr = "DROP TABLE IF EXISTS %s; \r create external table IF NOT EXISTS %s (\r" %(SHORT_tableName,SHORT_tableName)
-    fieldResultData = SqlUtile.getTableFieldByKey(cursor,schemeKey)
+    fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
     bodayStr = FieldUtile.getAllfieldStr(fieldResultData)
 
     footStr = ")comment '%s' row format delimited fields terminated by '\\u0003' lines terminated by '\\u0005'\r" \

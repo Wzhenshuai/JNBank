@@ -1,6 +1,10 @@
 # coding=utf-8
 ## 仅用于 增量表的分流
-import os, sys
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
 from common import SqlUtile
 
 conn = SqlUtile.mysqlLogin()
@@ -9,11 +13,11 @@ cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 SHORTNANE = sys.argv[1].upper()
 
 # 查询sql 存入的路径
-dicResultData = SqlUtile.getDicInfo(cursor,SHORTNANE)
+dicResultData = SqlUtile.getDicInfo(cursor, SHORTNANE)
 sqlPath = dicResultData[0][0].upper()
 
 ## 查询增量表数据
-ZLResultData = SqlUtile.getZLData(cursor,SHORTNANE)
+ZLResultData = SqlUtile.getZLData(cursor, SHORTNANE)
 
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
@@ -25,7 +29,7 @@ for ta in ZLResultData:
     schemeKey = ta[0]
     tableName = ta[1]
     ## 查询该表 字段
-    fieldResultData = SqlUtile.getTableFieldByKey(cursor,schemeKey)
+    fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
 
     SHORT_tableName = SHORTNANE + "_" + tableName.lower()
     file_sql_name = "FullAddDataBuffer.%s.sql" % SHORT_tableName

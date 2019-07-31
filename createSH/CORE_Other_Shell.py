@@ -1,17 +1,20 @@
 # coding=utf-8
 
-import pymysql
-import os, sys
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, ConstantUtile
 
 ##  仅用于数整 除ODS F RPT 之外的表，指定的几个表
 
 system_nu = sys.argv[1].upper()
 systemUpper = 'CORE'
-conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
-                       port=3306)
+conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
-custmerStr = "'CORE_DS_ACCOUNTING_FLOW','CORE_TM_ACCOUNT','CORE_TM_CUST_LIMIT_O','CORE_TM_CUSTOMER','CORE_TM_LOAN','CORE_TM_PSB_PERSONAL_INFO','CORE_TT_TXN_POST','CORE_QRY_080','CORE_DICTIONARY','CORE_ORGANIZATION'"
+custmerStr = ConstantUtile.custmerStr
 
 cursor.execute("SELECT en_name,system_en_name FROM table_scheme WHERE  system_en_name in ("+custmerStr+")")
 table_datas = cursor.fetchall()

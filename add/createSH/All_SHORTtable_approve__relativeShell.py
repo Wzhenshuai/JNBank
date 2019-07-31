@@ -2,8 +2,12 @@
 
 ### 仅用于 数整 ODS 生成shell的抽取
 
-import os, sys
-from common import ComparUtile,SqlUtile
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, ComparUtile
 
 SHORTNANE = sys.argv[1].upper()
 
@@ -11,8 +15,8 @@ conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
-dicResultData = SqlUtile.getDicInfo(cursor,SHORTNANE)
-AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNANE)
+dicResultData = SqlUtile.getDicInfo(cursor, SHORTNANE)
+AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNANE)
 outPath = dicResultData[0][2]
 # 模版路径
 
@@ -29,7 +33,7 @@ for td in AllSchemeResultData:
     tableUpper = td[1].upper()
     scheme_key = td[0]
     numIndex += 1
-    fieldResultData = SqlUtile.getTableFieldByKey(cursor,scheme_key)
+    fieldResultData = SqlUtile.getTableFieldByKey(cursor, scheme_key)
     fieldStr = ''
     for fd in fieldResultData:
         fileCode = fd[0].upper()

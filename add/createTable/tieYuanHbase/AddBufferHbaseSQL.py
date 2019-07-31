@@ -2,8 +2,9 @@
 ### 贴源层全量数据用于数整 ODS表生成铺底 建表
 import os
 import sys
-
-from common import FieldUtile,SqlUtile
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, FieldUtile
 
 SHORTNAME = sys.argv[1].upper()
 
@@ -14,7 +15,7 @@ cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
 else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNAME)
+    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 
 path = r"E:\mnt\JN_shell\Create_tables\AddBuffer"
 

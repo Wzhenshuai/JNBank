@@ -1,6 +1,10 @@
 #coding=utf-8
 ## 缓冲数据层:计算该表的 单纯增量数据，以及贴源层全量数据
-import os, sys
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
 from common import SqlUtile
 
 conn = SqlUtile.mysqlLogin()

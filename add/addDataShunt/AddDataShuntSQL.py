@@ -1,17 +1,21 @@
 #coding=utf-8
 ## 仅用于 增量表的分流
-import os, sys
-from common import SqlUtile,ConstantUtile
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, ConstantUtile
 
 conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 SHORTNAME = sys.argv[1].upper()
 # 获取sql 路径
-dicResultData = SqlUtile.getDicInfo(cursor,SHORTNAME)
+dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()
 
-AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNAME)
+AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
@@ -22,7 +26,7 @@ for ta in AllSchemeResultData:
     numIndex += 1
     schemeKey = ta[0]
     tableName = ta[1]
-    fieldResultData = SqlUtile.getTableFieldByKey(cursor,schemeKey)
+    fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
 
     SHORT_tableName = SHORTNAME + "_" + tableName.lower()
     file_sql_name = "AddDataShunt.%s.sql" % SHORT_tableName

@@ -1,6 +1,10 @@
 #coding=utf-8
 ## 仅用于 增量表的分流
-import os, sys
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
 from common import SqlUtile
 
 conn = SqlUtile.mysqlLogin()

@@ -1,5 +1,7 @@
 import re
+import sys
 
+print(sys.path)
 a = "123abc4a6"
 b = '币别 ;  货币代号'
 t = 'timestamp'

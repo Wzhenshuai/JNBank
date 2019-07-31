@@ -2,7 +2,9 @@
 ### 增量用于数整 ODS表生成铺底 建表（历史库）
 import os
 import sys
-from common import SqlUtile,FieldUtile
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, FieldUtile
 
 SHORTNAME = sys.argv[1].upper()
 
@@ -13,7 +15,7 @@ cursor = conn.cursor()
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
 else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNAME)
+    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 
 path = r"E:\mnt\JN_shell\Create_tables\AddBuffer"
 out_file_path = os.path.join(path, "%s.AddBufferDay.sql" % SHORTNAME)
@@ -30,7 +32,7 @@ for td in AllSchemeResultData:
 
     tableCommenStr = td[1]+td[2]
 
-    field_datas = SqlUtile.getTableFieldByKey(cursor,schemeKey)
+    field_datas = SqlUtile.getTableFieldByKey(cursor, schemeKey)
     createBody = FieldUtile.getAllfieldStr(field_datas)
     headStr = "DROP TABLE IF EXISTS %s;\r create table IF NOT EXISTS %s ( \r " %(SHORT_tableName,SHORT_tableName)
     footStr = "`Data_source_str` varchar(33) COMMENT '数据来源' \r)comment '%s' \r clustered by (rowKeyStr) into 6 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r"% tableChName

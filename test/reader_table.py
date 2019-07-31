@@ -1,14 +1,13 @@
 # coding=utf-8
 
-import pymysql
-import os, sys
+import os
 
-ttm = 'BD_DEFDOC'
+ttm = 'XD_BAIDUXD_LOAN_RATE'
 # 模版路径
-filePath = r"E:\tmp\ERPHR\ORACLE\%s.sql"%ttm
+filePath = r"E:\tmp\0731\%s.sql"%ttm
 
 ## 输出路径
-out_file_path = r"E:\tmp\ERPHR\MYSQL\%s.sql"%ttm
+out_file_path = r"E:\tmp\0731\MYSQL\%s.sql"%ttm
 
 
 f = open(filePath, 'r', encoding='utf-8')
@@ -28,7 +27,7 @@ for li in lines:
     cloScle = dd[4].strip()
     cloKey = dd[5].strip()
     cloRmark = dd[6].strip()
-    sch_key = 'ERPHR_%s'%ttm
+    sch_key = 'CORE_%s'%ttm
     if cloKey != '' and cloKey != '0' and cloKey != 'null':
         cloKey = 'XX'
     if cloScle == '0':

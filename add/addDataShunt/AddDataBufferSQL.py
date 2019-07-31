@@ -1,7 +1,11 @@
 #coding=utf-8
 ## 缓冲数据层:计算该表的 单纯增量数据，以及贴源层全量数据
-import os, sys
-from common import SqlUtile,ConstantUtile
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, ConstantUtile
 
 conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
@@ -10,12 +14,12 @@ SHORTNANE = sys.argv[1].upper()
 
 
 # 获取所有表
-dicResultData = SqlUtile.getDicInfo(cursor,SHORTNANE)
+dicResultData = SqlUtile.getDicInfo(cursor, SHORTNANE)
 
 sqlPath = dicResultData[0][0].upper()
 
 ## 获取增量数据
-QLResultData = SqlUtile.getQLData(cursor,SHORTNANE)
+QLResultData = SqlUtile.getQLData(cursor, SHORTNANE)
 
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
@@ -27,7 +31,7 @@ for ta in QLResultData:
     schemeKey = ta[0]
     tableName = ta[1].lower()
     ##  获得该表的表 字段
-    fieldResultData = SqlUtile.getTableFieldByKey(cursor,schemeKey)
+    fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
 
     SHORT_tableName = SHORTNANE+'_'+tableName.lower()
     file_sql_name = "AddDataBuffer.%s.sql" % SHORT_tableName

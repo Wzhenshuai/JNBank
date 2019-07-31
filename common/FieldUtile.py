@@ -1,5 +1,6 @@
 from common import coverField
 
+
 def getAllfieldStr(field_datas):
     rowKeyStrC = ''
     pr_key = ''
