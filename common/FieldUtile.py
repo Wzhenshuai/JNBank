@@ -1,4 +1,4 @@
-from common import coverField
+from common import CoverField
 
 
 def getAllfieldStr(field_datas):
@@ -18,7 +18,7 @@ def getAllfieldStr(field_datas):
             pr_key = pr_key + field_code + ','
         if fd[0] == 'CORPORATION':
             corporationStr = ''
-        tieldTypeStr = coverField.convert_fieldTypeAll(field_type, field_len, field_accuracy)
+        tieldTypeStr = CoverField.convert_fieldTypeAll(field_type, field_len, field_accuracy)
 
         if key_flag == '是':
             fieldStr = fieldStr + '`' + field_code + '` ' + tieldTypeStr + " comment '" + field_comment + '_主鍵' + "',\r"

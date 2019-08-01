@@ -15,14 +15,15 @@ print(re.search("([0-9]*)([a-z]*)([0-9]*)", a).group(3))  # 456
 
 #print(re.search(u'a(.+)', a).group(0))  # 456
 
-#a = a.replace('a','A').replace('二','四').replace('b','B')
-#print(b.replace(';', ':'))
-fieldType = 'timestamp(30)'
-aa = fieldType.split('(')[0]
+aa = "hefr,\rdhekfe,fefdse,\r"
 print(aa)
-if fieldType in ('time', 'date', 'timestamp','timestamp(30)'):
-    print(fieldType)
-ty = 'INDEX'
-if ty == 'INDEX':
-    ty = '"INDEX"'
-print(ty)
+print(aa.rstrip('\r'))
+#fieldType = 'timestamp(30)'
+#aa = fieldType.split('(')[0]
+#print(aa)
+#if fieldType in ('time', 'date', 'timestamp','timestamp(30)'):
+#    print(fieldType)
+#ty = 'INDEX'
+#if ty == 'INDEX':
+#    ty = '"INDEX"'
+#print(ty)

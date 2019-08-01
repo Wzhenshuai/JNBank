@@ -62,7 +62,7 @@ for ta in ZLResultData:
     if unite_key_file == "":
         #没有主键 处理一下
         part_insert_1_2 = "uniq() as rowkeystr,\r"
-        part_insert_2_2 = part_insert_1_2
+        part_insert_2_2 = "concat("+sss_insert_fieldStr.rstrip(",\r")+"'%s')"%SHORTNANE
         part_insert_3_2 = part_insert_1_2
     else:
         part_insert_1_2 = "concat(" + unite_key_file.rstrip(",\r") + ')as rowkeystr,\r'
@@ -80,22 +80,22 @@ for ta in ZLResultData:
 
     part_insert_1_5 = "'%s' as data_source_str \r from ( \r select "% SHORTNANE
 
-    part_insert_1_6 = insert_fieldStr + "from AddAnalyze.%s \r EXCEPT \r select "% SHORT_tableName
+    part_insert_1_6 =  " from AddAnalyze.%s \r EXCEPT \r select "% SHORT_tableName
 
     part_insert_2_6 = part_insert_1_6
 
-    part_insert_1_7 = insert_fieldStr + "from AddRollData.%s_Hbase\r) sss ;"% SHORT_tableName
+    part_insert_1_7 =  " from AddRollData.%s_Hbase\r) sss ;"% SHORT_tableName
 
     part_insert_2_7 = part_insert_1_7
 
-    part_insert_1 = part_insert_1_1+part_insert_1_2+part_insert_1_3+part_insert_1_3_1+sss_insert_fieldStr+part_insert_1_5+part_insert_1_6+part_insert_1_7
+    part_insert_1 = part_insert_1_1+part_insert_1_2+part_insert_1_3+part_insert_1_3_1+sss_insert_fieldStr+part_insert_1_5+insert_fieldStr.rstrip(',\r').replace('\r','')+part_insert_1_6+insert_fieldStr.rstrip(',\r').replace('\r','')+part_insert_1_7
 
     part_insert_2_3 = ",sss.CORPORATION \r ,(select distinct CycleId from AddBuffer.AddDateCycleId) as DELETE_DAY_ID " \
                       "\r from ( \r select "
 
     part_insert_2_5 = "from AddAnalyze.%s \r ) sss ;\r\r" % SHORT_tableName
 
-    part_insert_2 = part_insert_2_1+part_insert_2_2+part_insert_2_3 + insert_fieldStr + part_insert_2_6+part_insert_2_7
+    part_insert_2 = part_insert_2_1+part_insert_2_2+part_insert_2_3 + insert_fieldStr.rstrip(',\r').replace('\r','') + part_insert_2_6+part_insert_2_7
 
     part_insert_3_5 = "'CORE' as data_source_str from AddAnalyze.%s ;\r"% SHORT_tableName
 
