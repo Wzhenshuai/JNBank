@@ -14,9 +14,10 @@ cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
 
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
+    SYSTEM_SHORTNAME = 'CORE'
 else:
     AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
-
+    SYSTEM_SHORTNAME = SHORTNAME
 path = r"E:\mnt\JN_shell\Create_tables\AddBuffer"
 
 out_file_path = os.path.join(path, "%s.AddBufferHisAdd.sql" % SHORTNAME)
@@ -29,7 +30,7 @@ for td in AllSchemeResultData:
     schemeKey = td[0]
     tableName = td[1].lower()
     tableChName = td[2]
-    SHORT_tableName = SHORTNAME + '_' + tableName
+    SHORT_tableName = SYSTEM_SHORTNAME + '_' + tableName
 
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
     headStr = "DROP TABLE IF EXISTS %s_HisAdd; \r create table IF NOT EXISTS %s_HisAdd (\r" % (SHORT_tableName, SHORT_tableName)

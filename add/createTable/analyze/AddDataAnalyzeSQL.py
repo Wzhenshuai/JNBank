@@ -15,8 +15,10 @@ cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
+    SYSTEM_SHORTNAME = 'CORE'
 else:
     AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
+    SYSTEM_SHORTNAME = SHORTNAME
 
 path = r"E:\mnt\JN_shell\Create_tables\AddAnalyze"
 
@@ -28,7 +30,7 @@ numIndex = 0
 for td in AllSchemeResultData:
     numIndex += 1
     schemeKey = td[0]
-    SHORT_tableName = SHORTNAME + '_' + td[1].lower()
+    SHORT_tableName = SYSTEM_SHORTNAME + '_' + td[1].lower()
     tableChName = td[2]
 
     headStr = "DROP TABLE IF EXISTS %s; \r create external table IF NOT EXISTS %s (\r" %(SHORT_tableName,SHORT_tableName)

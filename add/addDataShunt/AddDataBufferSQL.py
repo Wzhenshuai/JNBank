@@ -10,30 +10,32 @@ from common import SqlUtile, ConstantUtile
 conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
-SHORTNANE = sys.argv[1].upper()
-
+SHORTNAME = sys.argv[1].upper()
 
 # 获取所有表
-dicResultData = SqlUtile.getDicInfo(cursor, SHORTNANE)
-
-sqlPath = dicResultData[0][0].upper()
-
 ## 获取增量数据
-QLResultData = SqlUtile.getQLData(cursor, SHORTNANE)
+if SHORTNAME.startswith('CORE'):
+    AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
+    SHORTNAME = 'CORE'
+else:
+    AllSchemeResultData = SqlUtile.getQLData(cursor, SHORTNAME)
+
+dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
+sqlPath = dicResultData[0][0].upper()
 
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
 os.chdir(sqlPath)
 
 numIndex = 0
-for ta in QLResultData:
+for ta in AllSchemeResultData:
     numIndex += 1
     schemeKey = ta[0]
     tableName = ta[1].lower()
     ##  获得该表的表 字段
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
 
-    SHORT_tableName = SHORTNANE+'_'+tableName.lower()
+    SHORT_tableName = SHORTNAME+'_'+tableName.lower()
     file_sql_name = "AddDataBuffer.%s.sql" % SHORT_tableName
     ## 拼接创建表 语句操作
     insert_tableName_str = "insert into %s \r " % SHORT_tableName
@@ -69,9 +71,9 @@ for ta in QLResultData:
     else:
         insert_table_str = insert_table_str + insert_fieldStr
 
-    insert_table_str = insert_table_str + "'%s' as data_source_str \r" % SHORTNANE
+    insert_table_str = insert_table_str + "'%s' as data_source_str \r" % SHORTNAME
 
-    insert_tableName_Hbase_field_str = "rowkeystr,\r dataday_id,\r tdh_load_timestamp,\r"+ insert_fieldStr+ "'%s' as data_source_str \r" % SHORTNANE
+    insert_tableName_Hbase_field_str = "rowkeystr,\r dataday_id,\r tdh_load_timestamp,\r"+ insert_fieldStr+ "'%s' as data_source_str \r" % SHORTNAME
     insert_tableName_str = insert_tableName_str+insert_table_str + "from AddAnalyze.%s ;" % SHORT_tableName
 
     insert_tableName_Hbase_str = insert_tableName_Hbase_str+insert_tableName_Hbase_field_str + "from %s ;" % SHORT_tableName

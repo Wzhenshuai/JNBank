@@ -14,9 +14,10 @@ cursor = conn.cursor()
 
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
+    SYSTEM_SHORTNAME = 'CORE'
 else:
     AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
-
+    SYSTEM_SHORTNAME = SHORTNAME
 path = r"E:\mnt\JN_shell\Create_tables\AddBuffer"
 out_file_path = os.path.join(path, "%s.AddBufferDay.sql" % SHORTNAME)
 

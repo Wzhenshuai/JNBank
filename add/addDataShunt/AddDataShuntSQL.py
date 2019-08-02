@@ -12,10 +12,14 @@ conn = SqlUtile.mysqlLogin()
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 SHORTNAME = sys.argv[1].upper()
 # 获取sql 路径
+if SHORTNAME.startswith('CORE'):
+    AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
+    SHORTNAME = 'CORE'
+else:
+    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
+
 dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()
-
-AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
@@ -33,7 +37,7 @@ for ta in AllSchemeResultData:
     ## 拼接创建表 语句操作
     insert_CoreBankHist_str = "insert into CoreBankHistTest.%s PARTITION(partition_year) select\n " % SHORT_tableName
     insert_TownBankHist_str = "insert into TownBankHistTest.%s PARTITION(partition_year) select\n " % SHORT_tableName
-    insert_AddRollData_str = "insert into AddRollData.%s PARTITION(partition_day) select\n " % SHORT_tableName
+    insert_AddRollData_str = "insert into AddRollData.%s_HisAdd PARTITION(partition_day) select\n " % SHORT_tableName
 
     unite_key_file = ""
     insert_table_str = ""
@@ -53,11 +57,11 @@ for ta in AllSchemeResultData:
         unite_key_file = 'CORPORATION,' + unite_key_file
     if unite_key_file == "":
         insert_table_str = "uniq() as rowkeystr,\r" \
-                           + " as dataday_id,\r" \
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
                            + "SYSDATE  as tdh_load_timestamp, \r"
     else:
         insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                           + "dataday_id,\r" \
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
                            + "SYSDATE  as tdh_load_timestamp, \r"
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
