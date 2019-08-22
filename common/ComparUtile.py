@@ -1,6 +1,6 @@
 def findTableDayId(tableName):
     day_id = ''
-    if tableName == 'ACCOUNTING_SECU_OBJ_HIS':
+    if tableName == 'TTRD_ACCOUNTING_SECU_OBJ_HIS':
         day_id = 'BEG_DATE'
     elif tableName == 'DEV_TRANS_LOG':
         day_id = 'OPER_DATE'
@@ -20,7 +20,7 @@ def findTableDayId(tableName):
         day_id = 'OPERTIME'
     elif tableName == 'T_EMG_PAY_JRN':
         day_id = 'CREAT_DATE'
-    elif tableName == 'TCR_JNTCR_ZWLS':
+    elif tableName == 'JNTCR_ZWLS':
         day_id = 'JYRQ'
     elif tableName == 'IBANK_TRADEFLOWLIST':
         day_id = 'TRADETIME'

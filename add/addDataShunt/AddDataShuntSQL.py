@@ -14,7 +14,12 @@ SHORTNAME = sys.argv[1].upper()
 # 获取sql 路径
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
+    #AllSchemeResultData = SqlUtile.otherTmp(cursor)
     SHORTNAME = 'CORE'
+elif SHORTNAME == 'CREDITCORE':
+    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,'CREDIT')
+elif SHORTNAME == 'CREDITTOWN':
+    AllSchemeResultData = SqlUtile.getAllCREDITTOWNData(cursor)
 else:
     AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 
@@ -57,18 +62,18 @@ for ta in AllSchemeResultData:
         unite_key_file = 'CORPORATION,' + unite_key_file
     if unite_key_file == "":
         insert_table_str = "uniq() as rowkeystr,\r" \
-                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') dataday_id,\r" % SHORTNAME\
                            + "SYSDATE  as tdh_load_timestamp, \r"
     else:
         insert_table_str = "concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') dataday_id,\r" % SHORTNAME\
                            + "SYSDATE  as tdh_load_timestamp, \r"
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
     else:
         insert_table_str = insert_table_str + insert_fieldStr
-    insert_AddRollData_ss = insert_table_str + "'%s' as data_source_str,\r (select distinct CycleId from AddBuffer.AddDateCycleId) as partition_day \r" % SHORTNAME
-    insert_table_str = insert_table_str + "'%s' as data_source_str,\r (select distinct substr(CycleId,1,4) from AddBuffer.AddDateCycleId) as partition_year \r" % SHORTNAME
+    insert_AddRollData_ss = insert_table_str + "'%s' as data_source_str,\r (select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as partition_day \r" % ( SHORTNAME,SHORTNAME)
+    insert_table_str = insert_table_str + "'%s' as data_source_str,\r substr(dataday_id,1,4) as partition_year \r" % SHORTNAME
 
     insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str + "from AddRollData.%s where corporation in ('800','815');" % SHORT_tableName
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import os
+
 import xlrd
-import os, sys
 
 
 def list_file(path, system_name):
@@ -20,7 +21,7 @@ def list_file(path, system_name):
             i = 0;
             for sheet_no in workbook.sheet_names():
                 i = i + 1;
-                if i < 4:
+                if i < 3:
                     continue
                 if sheet_no == 'ODS_ECCRCSHT':
                     print(sheet_no)
@@ -44,11 +45,15 @@ def list_file(path, system_name):
                             filed_len = row_no[4]
                         else:
                             filed_len = str(int(row_no[4]))
-                        filed_accuracy = row_no[5]
+                        if row_no[5] == '' or row_no[5] == ' ':
+                            filed_accuracy = row_no[5]
+                        else:
+                            filed_accuracy = str(int(row_no[5]))
+
                         key_flag = row_no[6]
                         or_dict = row_no[7]
                         dict_content = row_no[8].replace("'", "\"").replace(",", "\,").replace(";", ":").replace("；", ":").replace("\'", "/")
-                        remarks = row_no[9].replace("'", "\"")
+                        remarks = row_no[9].replace("'", "\"").replace("\n","")
                         or_empty = "''"
                         if tableName == '':
                             print(fiel_name)
@@ -75,7 +80,7 @@ def out_path_all(file_name, path):
 if __name__ == '__main__':
     # busi_nu = ['BIll','credit','csnd','ctr','jf_mall','jf_sysbols','mmtm','trdj','utan','vts','xbus']
     #busi_nu = sys.argv[1]
-    busi_nu = 'CORE'
+    busi_nu = 'WEBCREDIT'
     system_name = busi_nu
 
     rootdir = r"E:\济宁银行\第一轮梳理表结构\%s" % busi_nu

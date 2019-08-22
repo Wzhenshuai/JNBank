@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import xlrd
-import os, sys
+import os
 
+import xlrd
 
 
 def list_file(rootdir):
@@ -70,13 +70,18 @@ def read_excel(file_name,rootdir):
 
 
 if __name__ == '__main__':
-    #busi_name = 'credit'
+    busi_name = 'WEBCREDIT'
     busi_nu = ['BIll', 'credit', 'csnd', 'ctr', 'jf_mall', 'jf_sysbols', 'mmtm', 'trdj', 'utan', 'vts', 'xbus']
 
-    for i in range(len(busi_nu)):
-        busi_name = busi_nu[i]
+    rootdir = r"E:\济宁银行\第一轮梳理表结构\%s" % busi_name
+    rootdir = rootdir + "\\"
+    # system_name = "C##BILL"
+    list_file(rootdir)
+
+    #for i in range(len(busi_nu)):
+     #   busi_name = busi_nu[i]
         #rootdir = r'/Users/freer/Documents/网智天元科技股份有限公司/济宁项目组/第一轮梳理表结构/%s/' % busi_name
-        rootdir = r"E:\济宁银行\第一轮梳理表结构\%s" % busi_name
-        rootdir = rootdir + "\\"
+     #   rootdir = r"E:\济宁银行\第一轮梳理表结构\%s" % busi_name
+      #  rootdir = rootdir + "\\"
         #system_name = "C##BILL"
-        list_file(rootdir)
+       # list_file(rootdir)

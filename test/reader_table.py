@@ -7,7 +7,7 @@ ttm = 'XD_BAIDUXD_LOAN_RATE'
 filePath = r"E:\tmp\0731\%s.sql"%ttm
 
 ## 输出路径
-out_file_path = r"E:\tmp\0731\MYSQL\%s.sql"%ttm
+out_file_path = r"\\USER-20190220BH\mnt\%s.sql"%ttm
 
 
 f = open(filePath, 'r', encoding='utf-8')

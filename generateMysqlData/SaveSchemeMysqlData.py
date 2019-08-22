@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+import sys
+
 import xlrd
-import os, sys
 
 
 def list_file(busi_name, rootdir):
@@ -39,6 +41,7 @@ def read_excel(busi_name, file_name, rootdir):
             continue
         #system_name = repr(row_no[0])
         system_name = '\''+busi_name.upper() + '\''
+        system_db = repr(row_no[0])
         ch_name = repr(row_no[1])
         en_name = row_no[2].replace(',','')
         down_type = repr(row_no[3])
@@ -46,17 +49,18 @@ def read_excel(busi_name, file_name, rootdir):
         provideDate_way = repr(row_no[5])
         town_center_flag = repr(row_no[6])
         or_extract = repr(row_no[7])
+        db_name = repr(row_no[10])
         if row_no[8] == '':
             table_num = repr(row_no[8])
         elif row_no[8] =='系统中没有':
             table_num = repr(row_no[8])
         else:
             table_num = str(int(row_no[8]))
-        system_en_name = repr(busi_name.upper() + "_" + en_name)
-        insertStr = "insert INTO table_scheme (system_name,ch_name,en_name,down_type, down_name,\r" \
-                    "provideDate_way,town_center_flag, or_extract, table_num, system_en_name)\r " \
+        system_en_name = repr(system_db.upper() + "_" + en_name)
+        insertStr = "insert INTO table_scheme (system_name,ch_name,en_name,down_type, down_name," \
+                    "provideDate_way,town_center_flag, or_extract, table_num, system_en_name,db_name) " \
                     "VALUES(" + system_name + "," + ch_name + "," + repr(en_name) + "," + down_type + "," + down_name + ","\
-                    + provideDate_way + "," + town_center_flag + "," + or_extract + "," + table_num + "," + system_en_name + ");\r"
+                    + provideDate_way + "," + town_center_flag + "," + or_extract + "," + table_num + "," + system_en_name + ","+db_name+");\r"
         f.write(insertStr)
     f.close()
 

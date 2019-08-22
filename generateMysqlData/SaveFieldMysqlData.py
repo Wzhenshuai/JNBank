@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import os
+
 import xlrd
-import os, sys
 
 
 def list_file(path, system_name):
@@ -27,10 +28,12 @@ def list_file(path, system_name):
                 sheetVal = workbook.sheet_by_name(sheet_no)
                 a = 0;
                 tableName = ''
+
                 for row_no in sheetVal._cell_values:
                     a = a + 1;
                     if a == 2 :
                         tableName = row_no[1].replace(',', '')
+                        print(tableName)
                     if a >= 5:
                         if row_no[0] == '' or row_no[0] == ' ':
                             ord_number = row_no[0]
@@ -40,15 +43,22 @@ def list_file(path, system_name):
                         filed_name = row_no[1].replace("'", "\"").replace(",", "\,").replace(";", ":").replace("；", ":")
                         filed_code = row_no[2].replace(',', '')
                         filed_type = row_no[3]
+                        if filed_type.startswith('enum'):
+                            filed_type = 'varchar'
+                        if filed_type.find("(") > 0:
+                            filed_type = filed_type.split('(')[0]
                         if row_no[4] == '' or row_no[4] == ' ':
                             filed_len = row_no[4]
                         else:
                             filed_len = str(int(row_no[4]))
-                        filed_accuracy = row_no[5]
+                        if row_no[5] != '':
+                            filed_accuracy = str(int(row_no[5]))
+                        else:
+                            filed_accuracy = row_no[5]
                         key_flag = row_no[6]
                         or_dict = row_no[7]
                         dict_content = row_no[8].replace("'", "\"").replace(",", "\,").replace(";", ":").replace("；", ":").replace("\'", "/")
-                        remarks = row_no[9].replace("'", "\"")
+                        remarks = row_no[9].replace("'", "\"").replace("\n","")
                         or_empty = "''"
                         scheme_key = "'" + system_name.upper() + "_" + tableName + "'"
                         # print(system_name,row_no[1],row_no[2],row_no[5],row_no[7])
@@ -72,7 +82,7 @@ def out_path_all(file_name, path):
 
 if __name__ == '__main__':
     # busi_nu = ['BIll','credit','csnd','ctr','jf_mall','jf_sysbols','mmtm','trdj','utan','vts','xbus']
-    busi_nu = sys.argv[1]
+    busi_nu = 'WEBCREDIT'
     system_name = busi_nu
 
     rootdir = r"E:\济宁银行\第一轮梳理表结构\%s" % busi_nu

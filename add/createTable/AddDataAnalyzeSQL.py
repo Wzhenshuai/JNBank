@@ -15,10 +15,13 @@ cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
-    SYSTEM_SHORTNAME = 'CORE'
+    SHORTNAME = 'CORE'
+elif SHORTNAME == 'CREDITCORE':
+    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,'CREDIT')
+elif SHORTNAME == 'CREDITTOWN':
+    AllSchemeResultData = SqlUtile.getAllCREDITTOWNData(cursor)
 else:
     AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
-    SYSTEM_SHORTNAME = SHORTNAME
 
 path = r"E:\mnt\JN_shell\Create_tables\AddAnalyze"
 
@@ -30,17 +33,17 @@ numIndex = 0
 for td in AllSchemeResultData:
     numIndex += 1
     schemeKey = td[0]
-    SHORT_tableName = SYSTEM_SHORTNAME + '_' + td[1].lower()
+    SHORT_tableName = SHORTNAME + '_' + td[1].lower()
     tableChName = td[2]
 
     headStr = "DROP TABLE IF EXISTS %s; \r create external table IF NOT EXISTS %s (\r" %(SHORT_tableName,SHORT_tableName)
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
-    bodayStr = FieldUtile.getAllfieldStr(fieldResultData)
+    bodayStr = FieldUtile.getfieldStr(fieldResultData)
 
-    footStr = ")comment '%s' row format delimited fields terminated by '\\u0003' lines terminated by '\\u0005'\r" \
+    footStr = "\r )comment '%s' row format delimited fields terminated by '\\u0003' lines terminated by '\\u0005'\r" \
               "stored as textfile location '/DATACENTER/AddData/%s/%s/';\r\r" %(tableChName,SHORTNAME,SHORT_tableName)
 
-    fieldStr =headStr+bodayStr+footStr
+    fieldStr =headStr+bodayStr.strip(',\r')+footStr
 
     f = open(out_file_path, "a+", encoding='utf-8')
     f.write(fieldStr)

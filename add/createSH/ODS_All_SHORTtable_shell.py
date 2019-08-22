@@ -14,19 +14,16 @@ SHORTNANE = sys.argv[1].upper()
 conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
-
-dicResultData = SqlUtile.getDicInfo(cursor, SHORTNANE)
-AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNANE)
+system_code = 'CORE'
+dicResultData = SqlUtile.getDicInfo(cursor, system_code)
+AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNANE)
 outPath = dicResultData[0][2]
 # 模版路径
 
 filePath = ''
 out_file_path = ''
 numIndex = 0
-if SHORTNANE == 'CREDITTOWN':
-    field1 = "select '615' as corporation ,"
-else:
-    field1 = "select '815' as corporation ,"
+
 for td in AllSchemeResultData:
     tableLower = td[1].lower()
     SHORTtableName = SHORTNANE + '_'+tableLower
@@ -48,17 +45,15 @@ for td in AllSchemeResultData:
             fieldStr = fieldStr + fileCode + ','
         if fileCode == 'CORPORATION':
             field1 = "select "
-    sqoopQueryStr = field1 + fieldStr.rstrip(',')
+    sqoopQueryStr = field1 + fieldStr.rstrip(',')+" from ${source_Table}"
 
     tableDate = ComparUtile.findTableDayId(tableUpper)
     if tableDate == '':
-        allTempFilePath = r"E:\mnt\template\add\FullAddData.SHORTtable.sh"
-        out_file_path = os.path.join(outPath, "FullAddData_%s.sh" % SHORTtableName)
-       # sqoopQueryStr = sqoopQueryStr + "from ${source_Table} where \$CONDITIONS "
-    else:
         allTempFilePath = r"E:\mnt\template\add\AddData.SHORTtable.sh"
         out_file_path = os.path.join(outPath, "AddData_%s.sh" % SHORTtableName)
-       # sqoopQueryStr = sqoopQueryStr + "from ${source_Table} where ${Date_Dolumns} = '${cycle_id}' and \$CONDITIONS"
+    else:
+        allTempFilePath = r"E:\mnt\template\add\FullAddData.SHORTtable.sh"
+        out_file_path = os.path.join(outPath, "FullAddData_%s.sh" % SHORTtableName)
     if os.path.exists(out_file_path):
         os.remove(out_file_path)
     f = open(allTempFilePath, 'r', encoding='utf-8')

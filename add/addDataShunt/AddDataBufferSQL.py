@@ -16,9 +16,14 @@ SHORTNAME = sys.argv[1].upper()
 ## 获取增量数据
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
+    #AllSchemeResultData = SqlUtile.otherTmp(cursor)
     SHORTNAME = 'CORE'
+elif SHORTNAME == 'CREDITCORE':
+    AllSchemeResultData = SqlUtile.getZLData(cursor,'CREDIT')
+elif SHORTNAME == 'CREDITTOWN':
+    AllSchemeResultData = SqlUtile.getZLCREDITTOWNData(cursor)
 else:
-    AllSchemeResultData = SqlUtile.getQLData(cursor, SHORTNAME)
+    AllSchemeResultData = SqlUtile.getZLData(cursor, SHORTNAME)
 
 dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()
@@ -26,7 +31,6 @@ sqlPath = dicResultData[0][0].upper()
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
 os.chdir(sqlPath)
-
 numIndex = 0
 for ta in AllSchemeResultData:
     numIndex += 1
@@ -38,8 +42,8 @@ for ta in AllSchemeResultData:
     SHORT_tableName = SHORTNAME+'_'+tableName.lower()
     file_sql_name = "AddDataBuffer.%s.sql" % SHORT_tableName
     ## 拼接创建表 语句操作
-    insert_tableName_str = "insert into %s \r " % SHORT_tableName
-    insert_tableName_Hbase_str = "insert into %s_Hbase select\r " % SHORT_tableName
+    insert_tableName_str = "insert into AddRollData.%s \r " % SHORT_tableName
+    insert_tableName_Hbase_str = "insert into AddRollData.%s_Hbase select\r " % SHORT_tableName
 
 
     unite_key_file = ""
@@ -52,7 +56,6 @@ for ta in AllSchemeResultData:
         fieldName = fie[0].upper()
         if fieldName == 'CORPORATION':
             aaa = 1
-
         if key_comm == '是':
             unite_key_file = unite_key_file + fie[0] + ','
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
@@ -60,23 +63,25 @@ for ta in AllSchemeResultData:
         unite_key_file = 'CORPORATION,' + unite_key_file
     if unite_key_file == "":
         insert_table_str = "uniq() as rowkeystr,\r" \
-                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
-                           + "SYSDATE  as tdh_load_timestamp, \r"
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id,\r" \
+                           + "SYSDATE  as tdh_load_timestamp, \r" % SHORTNAME
     else:
         insert_table_str = "select concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                           + "(select distinct CycleId from AddBuffer.AddDateCycleId) as dataday_id,\r" \
+                           + "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id,\r" % SHORTNAME\
                            + "SYSDATE  as tdh_load_timestamp, \r"
     if aaa == 0:
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
+        insert_fieldStr = 'CORPORATION,\r' + insert_fieldStr
     else:
         insert_table_str = insert_table_str + insert_fieldStr
 
     insert_table_str = insert_table_str + "'%s' as data_source_str \r" % SHORTNAME
 
     insert_tableName_Hbase_field_str = "rowkeystr,\r dataday_id,\r tdh_load_timestamp,\r"+ insert_fieldStr+ "'%s' as data_source_str \r" % SHORTNAME
+
     insert_tableName_str = insert_tableName_str+insert_table_str + "from AddAnalyze.%s ;" % SHORT_tableName
 
-    insert_tableName_Hbase_str = insert_tableName_Hbase_str+insert_tableName_Hbase_field_str + "from %s ;" % SHORT_tableName
+    insert_tableName_Hbase_str = insert_tableName_Hbase_str+insert_tableName_Hbase_field_str + "from AddAnalyze.%s ;" % SHORT_tableName
 
     ## 数据写入文件
     if os.path.exists(file_sql_name):
@@ -86,13 +91,11 @@ for ta in AllSchemeResultData:
 
     f.write(ConstantUtile.setHiveStr)
 
-    f.write("\r  use AddRollData;  ---临时使用\r")
-    f.write("truncate table %s;\r" % SHORT_tableName)
+    f.write("truncate table AddRollData.%s;\r" % SHORT_tableName)
 
-    f.write("\r\r\r"+insert_tableName_str)
+    f.write("\r"+insert_tableName_str)
 
-    f.write("\r\r")
-    f.write("\r\r\r" + insert_tableName_Hbase_str)
+    f.write("\r\r" + insert_tableName_Hbase_str)
     f.write("\r\r!q")
     f.close()
 print(str(numIndex)+"张表操作完成！！！")
