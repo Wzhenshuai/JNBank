@@ -1,8 +1,10 @@
 # coding=utf-8
 # 只用于 ERPCW 需要添加scheme.table,其他系统不需要
 
+import os
+import sys
+
 import pymysql
-import os, sys
 
 systemUpper = sys.argv[1].upper()
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
@@ -39,7 +41,7 @@ for td in table_datas:
     for fd in field_datas:
         ty = fd[0].upper()
         if ty == 'INDEX':
-            ty = '"INDEX"'
+            ty = '\\"INDEX\\"'
         if fd[1].upper() in ('CHAR', 'NCHAR', 'VARCHAR', 'NVARCHAR', 'GRAPHIC', 'VARBRAPHIC', 'CHARACTER','VARCHAR2',
                              'NVARCHAR2','LANG','EVALUATE_RECORD','MAINTAIN_INFO','MAINTAIN_INFO',
                              'LAWSUIT_APPLY','LAWCASE_INFO','BUSINESS_CONTRACT','ASSET_INFO','BUSINESS_APPROVE'):

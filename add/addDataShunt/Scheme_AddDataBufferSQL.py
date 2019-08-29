@@ -14,16 +14,7 @@ SHORTNAME = sys.argv[1].upper()
 
 # 获取所有表
 ## 获取增量数据
-if SHORTNAME.startswith('CORE'):
-    AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
-    #AllSchemeResultData = SqlUtile.otherTmp(cursor)
-    SHORTNAME = 'CORE'
-elif SHORTNAME == 'CREDITCORE':
-    AllSchemeResultData = SqlUtile.getZLData(cursor,'CREDIT')
-elif SHORTNAME == 'CREDITTOWN':
-    AllSchemeResultData = SqlUtile.getZLCREDITTOWNData(cursor)
-else:
-    AllSchemeResultData = SqlUtile.getZLData(cursor, SHORTNAME)
+AllSchemeResultData = SqlUtile.getZLData(cursor, SHORTNAME)
 
 dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()
@@ -36,14 +27,15 @@ for ta in AllSchemeResultData:
     numIndex += 1
     schemeKey = ta[0]
     tableName = ta[1].lower()
+    DBNAME = ta[2].upper()
     ##  获得该表的表 字段
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
 
-    SHORT_tableName = SHORTNAME+'_'+tableName.lower()
-    file_sql_name = "AddDataBuffer.%s.sql" % SHORT_tableName
+    SHORT_DBNAME_tableName = SHORTNAME+'_'+DBNAME+'_'+tableName.lower()
+    file_sql_name = "AddDataBuffer.%s.sql" % SHORT_DBNAME_tableName
     ## 拼接创建表 语句操作
-    insert_tableName_str = "insert into AddRollData.%s \r " % SHORT_tableName
-    insert_tableName_Hbase_str = "insert into AddRollData.%s_Hbase select\r " % SHORT_tableName
+    insert_tableName_str = "insert into AddRollData.%s \r " % SHORT_DBNAME_tableName
+    insert_tableName_Hbase_str = "insert into AddRollData.%s_Hbase select\r " % SHORT_DBNAME_tableName
 
 
     unite_key_file = ""
@@ -79,9 +71,9 @@ for ta in AllSchemeResultData:
 
     insert_tableName_Hbase_field_str = "rowkeystr,\r dataday_id,\r tdh_load_timestamp,\r"+ insert_fieldStr+ "'%s' as data_source_str \r" % SHORTNAME
 
-    insert_tableName_str = insert_tableName_str+insert_table_str + "from AddAnalyze.%s ;" % SHORT_tableName
+    insert_tableName_str = insert_tableName_str+insert_table_str + "from AddAnalyze.%s ;" % SHORT_DBNAME_tableName
 
-    insert_tableName_Hbase_str = insert_tableName_Hbase_str+insert_tableName_Hbase_field_str + "from AddRollData.%s ;" % SHORT_tableName
+    insert_tableName_Hbase_str = insert_tableName_Hbase_str+insert_tableName_Hbase_field_str + "from AddRollData.%s ;" % SHORT_DBNAME_tableName
 
     ## 数据写入文件
     if os.path.exists(file_sql_name):
@@ -91,7 +83,7 @@ for ta in AllSchemeResultData:
 
     f.write(ConstantUtile.setHiveStr)
 
-    f.write("truncate table AddRollData.%s;\r" % SHORT_tableName)
+    f.write("truncate table AddRollData.%s;\r" % SHORT_DBNAME_tableName)
 
     f.write("\r"+insert_tableName_str)
 

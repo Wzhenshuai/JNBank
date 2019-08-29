@@ -67,11 +67,11 @@ def convert_fieldTypeAll(fieldType,fieldLen,fieldAccuracy):
         field_type = 'boolean'
     elif fieldType in ('clob', 'blob'):
         field_type = fieldType
-    elif fieldType in ('nclob', 'long varchar'):
+    elif fieldType in ('nclob', 'long varchar', 'text', 'mediumString', 'longString', 'longtext', 'mediumtext', 'tinytext'):
         field_type = 'clob'
     elif fieldType in ('long raw', 'longraw', 'raw'):
         field_type = 'blob'
-    elif fieldType == 'long':
+    elif fieldType in ( 'long','datetime','tinyString') :
         field_type = 'varchar(1000)'
     elif fieldType in ('numeric', 'decimal', 'decfloat', 'real', 'float', 'double', 'number'):
         if fieldAccuracy == "" or fieldAccuracy == " ":
@@ -80,4 +80,11 @@ def convert_fieldTypeAll(fieldType,fieldLen,fieldAccuracy):
             field_type = 'decimal(' + fieldLen + ',' + fieldAccuracy + ')'
     else:
         field_type = fieldType + '(' + fieldLen + ')'
-    return field_type;
+    return field_type
+
+def conver_field_oth(fieldType):
+    if fieldType in ('nclob', 'long varchar', 'text', 'mediumString', 'longString', 'longtext', 'mediumtext', 'tinytext','long raw', 'longraw', 'raw'):
+        field_type = '0'
+    else:
+        field_type = '1'
+    return field_type

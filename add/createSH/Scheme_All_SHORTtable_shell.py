@@ -23,47 +23,41 @@ outPath = dicResultData[0][2]
 filePath = ''
 out_file_path = ''
 numIndex = 0
-if SHORTNAME == 'CREDITCORE':
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,'CREDIT')
-    field1 = "select '815' as corporation ,"
-elif SHORTNAME == 'CREDITTOWN':
-    AllSchemeResultData = SqlUtile.getAllCREDITTOWNData(cursor)
-    field1 = "select '615' as corporation ,"
-else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
-    field1 = "select '815' as corporation ,"
+AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
+field1 = "select '815' as corporation ,"
 
 
 for td in AllSchemeResultData:
     tableLower = td[1].lower()
-    SHORTtableName = SHORTNAME + '_'+tableLower
+
     tableUpper = td[1].upper()
     scheme_key = td[0]
+    DBNAME = td[3].upper()
+    provideDateWay = td[4].upper()
     numIndex += 1
+    SHORT_DBNAME_tableName = SHORTNAME + '_' + DBNAME +'_'+ tableLower
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, scheme_key)
     fieldStr = ''
     for fd in fieldResultData:
         fileCode = fd[0].upper()
         fileType = fd[1].upper()
         if fileCode == 'INDEX':
-            fileCode = '\\"INDEX\\"'
+            fileCode ='\\"INDEX\\"'
         if fileType in ('CHAR', 'NCHAR', 'VARCHAR', 'NVARCHAR', 'GRAPHIC', 'VARBRAPHIC', 'CHARACTER','VARCHAR2',
                              'NVARCHAR2','LANG','EVALUATE_RECORD','MAINTAIN_INFO','MAINTAIN_INFO','LAWSUIT_APPLY',
                              'LAWCASE_INFO','BUSINESS_CONTRACT','ASSET_INFO','BUSINESS_APPROVE'):
             fieldStr = fieldStr + "trim("+fileCode+"),"
         else:
             fieldStr = fieldStr + fileCode + ','
-        if fileCode == 'ACCOUNTING_SECU_OBJ_HIS':
-            field1 = "select "
     sqoopQueryStr = field1 + fieldStr.rstrip(',')
     tableDate = ComparUtile.findTableDayId(tableUpper)
     if tableDate == '':
-        allTempFilePath = r"E:\mnt\template\add\FullAddData.SHORTtable.sh"
-        out_file_path = os.path.join(outPath, "FullAddData_%s.sh" % SHORTtableName)
+        allTempFilePath = r"E:\mnt\template\add\FullAddData.Scheme.SHORTtable.sh"
+        out_file_path = os.path.join(outPath, "FullAddData_%s.sh" % SHORT_DBNAME_tableName)
        # sqoopQueryStr = sqoopQueryStr + "from ${source_Table} where \$CONDITIONS "
     else:
-        allTempFilePath = r"E:\mnt\template\add\AddData.SHORTtable.sh"
-        out_file_path = os.path.join(outPath, "AddData_%s.sh" % SHORTtableName)
+        allTempFilePath = r"E:\mnt\template\add\AddData.Scheme.SHORTtable.sh"
+        out_file_path = os.path.join(outPath, "AddData_%s.sh" % SHORT_DBNAME_tableName)
        # sqoopQueryStr = sqoopQueryStr + "from ${source_Table} where ${Date_Dolumns} = '${cycle_id}' and \$CONDITIONS"
     if SHORTNAME == 'ERP':
         sqoopQueryStr = sqoopQueryStr + " from JNCW.${source_Table}"
@@ -78,7 +72,7 @@ for td in AllSchemeResultData:
     for li in lines:
         if tableDate != '':
             li = li.replace('DAY_ID',tableDate)
-        rli = li.replace('SHORTNAME', SHORTNAME).replace('TABLENAME', tableUpper).replace('sqoopQueryStr', sqoopQueryStr).replace('SHORTtableName',SHORTtableName)
+        rli = li.replace('SHORTNAME', SHORTNAME).replace('TABLENAME', tableUpper).replace('sqoopQueryStr', sqoopQueryStr).replace('DBNAME',DBNAME)
         wf.write(rli)
     wf.close()
 

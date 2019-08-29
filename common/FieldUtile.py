@@ -64,6 +64,30 @@ def getfieldStr(field_datas):
             fieldStr = fieldStr + '`' + field_code + '` ' + tieldTypeStr + " comment '" + field_comment + '_主鍵' + "',\r"
         else:
             fieldStr = fieldStr + '`' + field_code + '` ' + tieldTypeStr + " comment '" + field_comment + "',\r"
+    return corporationStr + fieldStr
 
 
+def getfieldString(field_datas):
+    rowKeyStrC = ''
+    pr_key = ''
+    fieldStr = ''
+    corporationStr = "`corporation` String comment'法人主体.主键',\r"
+    for fd in field_datas:
+        field_code = fd[0]
+        field_type = 'String'
+        #field_len = fd[2]
+        #field_accuracy = fd[3]
+        field_comment = fd[4]
+        key_flag = fd[5]
+        if key_flag == '是':
+            rowKeyStrC = rowKeyStrC + field_code + ','
+            pr_key = pr_key + field_code + ','
+        if fd[0] == 'CORPORATION':
+            corporationStr = ''
+        #tieldTypeStr = CoverField.convert_fieldTypeAll(field_type, field_len, field_accuracy)
+
+        if key_flag == '是':
+            fieldStr = fieldStr + '`' + field_code + '` ' + field_type + " comment '" + field_comment + '_主鍵' + "',\r"
+        else:
+            fieldStr = fieldStr + '`' + field_code + '` ' + field_type + " comment '" + field_comment + "',\r"
     return corporationStr + fieldStr

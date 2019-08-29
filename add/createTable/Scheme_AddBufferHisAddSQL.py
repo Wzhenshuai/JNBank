@@ -12,16 +12,7 @@ conn = SqlUtile.mysqlLogin()
 #第二步：创建游标  对象
 cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
 
-if SHORTNAME.startswith('CORE'):
-    AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
-    #SYSTEM_SHORTNAME = 'CORE'
-    SHORTNAME = 'CORE'
-elif SHORTNAME == 'CREDITCORE':
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,'CREDIT')
-elif SHORTNAME == 'CREDITTOWN':
-    AllSchemeResultData = SqlUtile.getAllCREDITTOWNData(cursor)
-else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
+AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 path = r"E:\mnt\JN_shell\Create_tables\AddBuffer"
 
 out_file_path = os.path.join(path, "%s.AddBufferHisAdd.sql" % SHORTNAME)
@@ -34,10 +25,11 @@ for td in AllSchemeResultData:
     schemeKey = td[0]
     tableName = td[1].lower()
     tableChName = td[2]
-    SHORT_tableName = SHORTNAME + '_' + tableName
+    DBNAME = td[3].upper()
+    SHORT_DBNAME_tableName = SHORTNAME + '_' + DBNAME + '_' + tableName
 
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
-    headStr = "DROP TABLE IF EXISTS %s_HisAdd; \r create table IF NOT EXISTS %s_HisAdd (\r" % (SHORT_tableName, SHORT_tableName)
+    headStr = "DROP TABLE IF EXISTS %s_HisAdd; \r create table IF NOT EXISTS %s_HisAdd (\r" % (SHORT_DBNAME_tableName, SHORT_DBNAME_tableName)
     bodayStr = FieldUtile.getAllfieldStr(fieldResultData)
     footStr = "`Data_source_str` varchar(33) COMMENT '数据来源' \r)comment '%s' partitioned by(partition_day varchar(33))\r" \
               " clustered by (rowKeyStr) into 6 buckets stored as orc TBLPROPERTIES ('transactional'='true');\r\r" % tableChName
