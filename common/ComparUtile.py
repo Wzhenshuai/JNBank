@@ -48,7 +48,14 @@ def findTableDayId(tableName):
         day_id = 'TRANSDATE'
     elif tableName in ('DC_LOG', 'IN_MST_HST', 'LN_MST_HST', 'TRACE_LOG'):
         day_id = 'TX_DATE'
-    elif tableName in ('CRM_CRM_DM_cust_attr_info_tmp','CRM_CRM_DM_cust_attr_info_tmp','CRM_CRM_DM_cust_alg_sum','CRM_CRM_DM_cust_man_his',
-                       'CRM_CRM_DM_index_data_value','CRM_CRM_DM_cust_contri_trend','CRM_CRM_DM_cust_base_info_p'):
+    elif tableName in ('CRM_DM_CUST_ATTR_INFO_TMP','CRM_DM_CUST_ASSET_BAL_OUT_IN','CRM_DM_CUST_ALG_SUM','CRM_DM_CUST_MAN_HIS','CRM_DM_CUST_BASE_INFO_P',
+                       'CRM_DM_INDEX_DATA_VALUE','CRM_DM_CUST_CONTRI_TREND',
+                       'CRM_DM_USER_ORDER_INFO','CRM_DM_USER_ORDER_INFO_TOP50'):
         day_id = 'DATA_DATE'
+    elif tableName in ('DB_BIZ_BANK_WITHHOLD_TRANSACTION_LOG','DB_BIZ_BANK_WITHHOLD_TRANSACTION'):
+        day_id = "DATE_FORMAT(update_at,'%Y%m%d')"
+    elif tableName == 'DB_BIZ_INTEREST_ACCRUAL':
+        day_id = "DATE_FORMAT(update_time,'%Y%m%d')"
+    elif tableName == 'DB_MSGSERVER_MSG_RECORD':
+        day_id = "DATE_FORMAT(last_modify_time,'%Y%m%d')"
     return day_id

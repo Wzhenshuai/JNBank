@@ -46,7 +46,7 @@ for ta in FullResultData:
     select_insert_fieldStr = ''
     create_fieldStr = ''
     insert_rowKey_str = ""
-    aaa = "无CORPORATION"
+    aaa = "NO_CORPORATION"
     key_flag = "无主键"
     unite_key_oth = ""
     for fie in fieldResultData:
@@ -55,7 +55,7 @@ for ta in FullResultData:
         fieldType = fie[1].upper()
 
         if fieldName == 'CORPORATION':
-            aaa = "有CORPORATION"
+            aaa = "YES_CORPORATION"
         if key_comm == '是':
             key_flag = "有主键"
             unite_key_file = unite_key_file + "%s," % fieldName
@@ -69,9 +69,8 @@ for ta in FullResultData:
             continue
         insert_fieldStr1 = insert_fieldStr1 + "COALESCE(`%s`,'ThisIsNULL'),\r" % fieldName
         insert_fieldStr2 = insert_fieldStr2 + "COALESCE(`%s`,'ThisIsNULL') as `%s`,\r" % (fieldName,fieldName)
-    if aaa == "无CORPORATION":
+    if aaa == "NO_CORPORATION":
         # 没有CORPORATION 处理
-        unite_key_file = 'CORPORATION,' + unite_key_file
         select_unite_key_file = 'CORPORATION,' + select_unite_key_file
         select_insert_fieldStr = 'CORPORATION,\r' + select_insert_fieldStr
         unite_key_oth = "`CORPORATION`," + unite_key_oth
@@ -81,15 +80,15 @@ for ta in FullResultData:
         part_insert_2_2 = "concat("+unite_key_oth.rstrip(",\r")+")as rowkeystr\r"
         part_insert_3_2 = part_insert_1_2
     else:
-        part_insert_1_2 = "concat(" + unite_key_file.rstrip(",\r") + ')as rowkeystr,\r'
+        part_insert_1_2 = 'uniq() as rowkeystr,\r'
         part_insert_2_2 = "concat(" + select_unite_key_file.rstrip(",\r") + ')as rowkeystr\r'
-        part_insert_3_2 = part_insert_1_2;
+        part_insert_3_2 = part_insert_1_2
 
-    part_insert_1_3 = "(select distinct CycleId frrowkeystrom AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id," % SHORTNAME
+    part_insert_1_3 = "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id," % SHORTNAME
     part_insert_3_3 = part_insert_1_3
     part_insert_1_3_1 = "\r SYSDATE, \r "
     part_insert_3_3_1 = "\r SYSDATE  as tdh_load_timestamp, \r"
-    if aaa == '无CORPORATION':
+    if aaa == 'NO_CORPORATION':
         insert_table_str = insert_table_str + 'CORPORATION,\r'
         insert_fieldStr1 = 'CORPORATION,\r' + insert_fieldStr1
         insert_fieldStr2 = 'CORPORATION,\r' + insert_fieldStr2

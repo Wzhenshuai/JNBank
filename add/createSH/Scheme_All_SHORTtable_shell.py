@@ -50,7 +50,7 @@ for td in AllSchemeResultData:
         else:
             fieldStr = fieldStr + fileCode + ','
     sqoopQueryStr = field1 + fieldStr.rstrip(',')
-    tableDate = ComparUtile.findTableDayId(tableUpper)
+    tableDate = ComparUtile.findTableDayId(DBNAME+"_"+tableUpper)
     if tableDate == '':
         allTempFilePath = r"E:\mnt\template\add\FullAddData.Scheme.SHORTtable.sh"
         out_file_path = os.path.join(outPath, "FullAddData_%s.sh" % SHORT_DBNAME_tableName)

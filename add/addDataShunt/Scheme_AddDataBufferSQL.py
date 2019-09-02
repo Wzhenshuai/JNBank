@@ -34,34 +34,25 @@ for ta in AllSchemeResultData:
     SHORT_DBNAME_tableName = SHORTNAME+'_'+DBNAME+'_'+tableName.lower()
     file_sql_name = "AddDataBuffer.%s.sql" % SHORT_DBNAME_tableName
     ## 拼接创建表 语句操作
-    insert_tableName_str = "insert into AddRollData.%s \r " % SHORT_DBNAME_tableName
+    insert_tableName_str = "insert into AddRollData.%s select \r " % SHORT_DBNAME_tableName
     insert_tableName_Hbase_str = "insert into AddRollData.%s_Hbase select\r " % SHORT_DBNAME_tableName
 
 
-    unite_key_file = ""
     insert_table_str = ""
     insert_fieldStr = ''
     create_fieldStr = ''
-    aaa = 0
+    aaa = "NO_CORPORATION"
     for fie in fieldResultData:
         key_comm = fie[5]
         fieldName = fie[0].upper()
         if fieldName == 'CORPORATION':
-            aaa = 1
-        if key_comm == '是':
-            unite_key_file = unite_key_file + fie[0] + ','
+            aaa = "YES_CORPORATION"
         insert_fieldStr = insert_fieldStr + '`'+fie[0] + '`,\n'
-    if aaa == 0:
-        unite_key_file = 'CORPORATION,' + unite_key_file
-    if unite_key_file == "":
-        insert_table_str = "uniq() as rowkeystr,\r" \
-                           + "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id,\r" \
-                           + "SYSDATE  as tdh_load_timestamp, \r" % SHORTNAME
-    else:
-        insert_table_str = "select concat(" + unite_key_file.rstrip(",") + ')as rowkeystr,\r' \
-                           + "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id,\r" % SHORTNAME\
-                           + "SYSDATE  as tdh_load_timestamp, \r"
-    if aaa == 0:
+    insert_table_str = "uniq() as rowkeystr,\r" \
+                       + "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id,\r"% SHORTNAME \
+                       + "SYSDATE  as tdh_load_timestamp, \r"
+
+    if aaa == 'NO_CORPORATION':
         insert_table_str = insert_table_str + 'CORPORATION,\r' + insert_fieldStr
         insert_fieldStr = 'CORPORATION,\r' + insert_fieldStr
     else:

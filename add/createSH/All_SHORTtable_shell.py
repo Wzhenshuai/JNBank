@@ -68,7 +68,7 @@ for td in AllSchemeResultData:
     if SHORTNAME == 'ERP':
         sqoopQueryStr = sqoopQueryStr + " from JNCW.${source_Table}"
     else:
-        sqoopQueryStr = sqoopQueryStr + " from ${source_db}.${source_Table}"
+        sqoopQueryStr = sqoopQueryStr + " from ${source_Table}"
     if os.path.exists(out_file_path):
         os.remove(out_file_path)
     f = open(allTempFilePath, 'r', encoding='utf-8')
