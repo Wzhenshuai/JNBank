@@ -1,45 +1,42 @@
 
 #coding=utf-8
 
-#生成 除（信贷、数整）的历史库建表语句 条件 or_extract='是' 表太多
-import pymysql
-import os,sys
-import coverField
+import os
+import sys
 
-system_nu = sys.argv[1].upper()
-#system_nu = 'CREDIT'
-conn = pymysql.connect(host='127.0.0.1',user='root',password='woshibangbangde',db='datams',charset='utf8',port=3306)
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, CoverField
+
+SHORTNAME = sys.argv[1].upper()
+
+conn = SqlUtile.mysqlLogin()
 #第二步：创建游标  对象
 cursor = conn.cursor()   #cursor当前的程序到数据之间连接管道
 
-cursor.execute("SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s' AND or_extract = '是' " % system_nu)
-table_datas = cursor.fetchall()
+allSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNAME)
 
+#dicResultData = SqlUtile.getPDDicInfo(cursor,SHORTNAME)
+path = 'E:\mnt\JN_shell\Create_tables\AllData'
 
-path = r"E:\mnt\JN_shell\Create_tables\AllData"
-
-out_file_path = os.path.join(path, "%s_History_SQL.sql" % system_nu)
+out_file_path = os.path.join(path, "%s_History_SQL.sql" % SHORTNAME)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)
 
 def exec():
     numIndex = 0
-    for td in table_datas:
+    for td in allSchemeResultData:
         numIndex += 1
         if td[1].upper() == 'F_CM_SPSRC_VIEW':
             continue
-        tableName = system_nu.upper() + '_' + td[1].lower()
-        tableCommenStr = td[1]+td[2]
-
-        cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag FROM table_field where scheme_key ='%s' order by cast(ord_number as SIGNED INTEGER)" % td[0])
-
-        field_datas = cursor.fetchall()
+        tableName = SHORTNAME + '_' + td[1].lower()
+        schemeKey = td[0]
+        tableCommenStr = td[1]+str(td[2])
+        fieldResultData = SqlUtile.getTableFieldByKey(cursor,schemeKey)
         corporationStr = "`corporation` varchar(33) comment'法人主体.主键',\r"
-
         rowKeyStr = ''
-
-        for fd in field_datas:
+        for fd in fieldResultData:
             if fd[5] == '是':
                 rowKeyStr = rowKeyStr + fd[0] + ','
             if fd[0].upper() == 'CORPORATION':
@@ -50,14 +47,14 @@ def exec():
                    "`DataDay_ID` varchar(33) COMMENT'数据的时间',\r" \
                    "`tdh_load_timestamp`  varchar(33)  COMMENT'加载到TDH时的时间戳',\r" + corporationStr
 
-        for fd in field_datas:
+        for fd in fieldResultData:
             field_code = fd[0]
             field_type = fd[1]
             field_len = fd[2]
             field_accuracy = fd[3]
             key_flag = fd[5]
             field_comment = fd[4]
-            tieldTypeStr = coverField.convert_fieldType(field_type, field_len, field_accuracy)
+            tieldTypeStr = CoverField.convert_fieldTypeAll(field_type, field_len, field_accuracy)
             if key_flag == '是':
                 fieldStr = fieldStr + '`' + field_code + '` ' + tieldTypeStr + " comment '" + field_comment + '_主鍵'+"',\r"
             else:

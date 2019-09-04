@@ -1,10 +1,12 @@
 
 # coding=utf-8
 ### 生成 信贷平台 村镇 解析sql
-import pymysql
-import os,sys
+import os
+import sys
 
-system_nu = sys.argv[1].upper()
+import pymysql
+
+SHORTNAME = sys.argv[1].upper()
 #system_nu = 'CREDIT'
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)

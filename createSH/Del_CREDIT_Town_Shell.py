@@ -1,7 +1,9 @@
 # coding=utf-8
 #### 仅用于 信贷 村镇表 的生成
+import os
+import sys
+
 import pymysql
-import os, sys
 
 systemUpper = sys.argv[1].upper()
 # systemUpper = 'credit'.upper()

@@ -1,10 +1,13 @@
 #coding=utf-8
-## 仅用于 数整 ODS表的同步,指定一天的数据
-import pymysql
-import os, sys
 
-conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
-                       port=3306)
+import os
+import sys
+
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile
+
+conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
@@ -69,7 +72,7 @@ for ta in allTable:
 
     insert_table_str = insert_table_str +"'%s' as data_source_str\r "% shortName
     insert_CoreBankHist_str = insert_CoreBankHist_str+insert_table_str + "from AllAnalyze.%s \r" \
-                       "where DAY_ID in (select distinct CycleId from AddBuffer.AddDateCycleId );" % ("Core_"+table_name)
+                       "where DAY_ID in (select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='CORE');" % ("Core_"+table_name)
     ## 数据写入文件
     if os.path.exists(file_sql_name):
         os.remove(file_sql_name)

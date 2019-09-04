@@ -1,7 +1,9 @@
 #coding=utf-8
 ## 仅用于 信贷村镇 表的分流
+import os
+import sys
+
 import pymysql
-import os, sys
 
 conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
                        port=3306)

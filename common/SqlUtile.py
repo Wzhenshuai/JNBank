@@ -35,8 +35,8 @@ def getZLData(cursor,SHORTNAME):
     return ZLResultData
 
 ## 获取所有表数据 scheme
-def getALLSchemeData(cursor,SHORTNAME):
-    selectTableSql = "SELECT system_en_name,en_name ,ch_name,db_name,provideDate_way FROM table_scheme WHERE system_name ='%s' AND or_extract='是'" % SHORTNAME
+def getALLSchemeData(cursor,schemeKey):
+    selectTableSql = "SELECT system_en_name,en_name ,ch_name,db_name,provideDate_way FROM table_scheme WHERE system_name ='%s' AND or_extract='是'" % schemeKey
     cursor.execute(selectTableSql)
     AllSchemeResultData = cursor.fetchall()
     return AllSchemeResultData

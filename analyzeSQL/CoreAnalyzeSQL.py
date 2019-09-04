@@ -1,24 +1,23 @@
 
 # coding=utf-8
-### 生成 除（信贷、数整）以外的 解析sql（同Credit_CoreDataAnalyzeSQL.py 代码相同，批量脚本已制定这个不想该代码了，就用这个吧）
-import pymysql
-import os,sys
+import os
+import sys
 
-system_nu = sys.argv[1].upper()
-#system_nu = 'JFCORE'
-conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
-                       port=3306)
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile
+
+SHORTNAME = sys.argv[1].upper()
+
+conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
-cursor.execute(
-    "SELECT system_en_name,en_name,ch_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是'" % system_nu)
-
-table_datas = cursor.fetchall()
+allSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNAME)
 
 path = r"E:\mnt\JN_shell\Create_tables\AllAnalyze"
 
-out_file_path = os.path.join(path, "%s.Core.DataAnalyze.sql" % system_nu)
+out_file_path = os.path.join(path, "%s.DataAnalyze.sql" % SHORTNAME)
 
 if (os.path.exists(out_file_path)):
     os.remove(out_file_path)
@@ -26,27 +25,27 @@ if (os.path.exists(out_file_path)):
 def exec():
     numIndex = 0
 
-    header = "--- 本文件: %s.Core.DataAnalyze.sql \r CREATE DATABASE IF NOT EXISTS AllAnalyze COMMENT '全量.解析库';\r" % system_nu
+    header = "--- 本文件: %s.DataAnalyze.sql \r CREATE DATABASE IF NOT EXISTS AllAnalyze COMMENT '全量.解析库';\r" % SHORTNAME
     header = header + "use AllAnalyze;\r\r"
 
     f = open(out_file_path, "a+", encoding='utf-8')
     f.write(header)
     f.close()
-    for td in table_datas:
+    for td in allSchemeResultData:
 
         if td[1].upper() == 'F_CM_SPSRC_VIEW':
             continue
         numIndex += 1
-        tableName = system_nu + '_' + td[1].lower()
+        schemeKey = td[0]
+        tableName = SHORTNAME + '_' + td[1].lower()
 
-        cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag FROM table_field where scheme_key ='%s' order by cast(ord_number as SIGNED INTEGER)" % td[0])
+        fieldResultData = SqlUtile.getTableFieldByKey(cursor,schemeKey)
 
-        field_datas = cursor.fetchall()
-        boday = "DROP TABLE IF EXISTS Core_%s; \r create external table IF NOT EXISTS Core_%s(\r" % (tableName, tableName)
+        boday = "DROP TABLE IF EXISTS %s; \r create external table IF NOT EXISTS %s(\r" % (tableName, tableName)
         corporationStr = "`corporation` String comment '法人行号_主鍵',\r"
 
         fieldStr = ''
-        for fd in field_datas:
+        for fd in fieldResultData:
             field_code = fd[0]
 
             key_flag = fd[5]
@@ -60,8 +59,8 @@ def exec():
         if corporationStr != '':
             fieldStr = corporationStr + fieldStr
 
-        fieldStr = fieldStr.rstrip(',\r') + "\r)comment 'Core_%s汉语注解' row format delimited fields terminated by '\\u0003' \r" \
-                                          "stored as textfile location '/DATACENTER/AllData/%s/CoreBank/%s/';\r\r" % (tableName,system_nu,tableName)
+        fieldStr = fieldStr.rstrip(',\r') + "\r)comment '%s汉语注解' row format delimited fields terminated by '\\u0003' \r" \
+                                          "stored as textfile location '/DATACENTER/AllData/%s/%s/';\r\r" % (tableName,SHORTNAME,tableName)
 
         f = open(out_file_path, "a+", encoding='utf-8')
         f.write(boday+fieldStr)

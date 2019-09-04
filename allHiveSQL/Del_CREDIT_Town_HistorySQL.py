@@ -1,8 +1,11 @@
 #coding=utf-8
 
-import pymysql
-import os,sys
+import os
+import sys
+
 import coverField
+import pymysql
+
 #生成信贷 村镇 历史库建表语句 抽取or_extract='是' 因为表太多
 
 system_nu = sys.argv[1].upper()
