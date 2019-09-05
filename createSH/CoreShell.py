@@ -19,7 +19,7 @@ dicResultData = SqlUtile.getPDDicInfo(cursor,SHORTNAME)
 outPath = dicResultData[0][2]
 # 模版路径
 
-allTempFilePath = r"E:\mnt\template\CREDIT.shell\Core_agentShell\AllData.Core.SHORTNAME_tablename.sh"
+allTempFilePath = r"E:\mnt\template\all\AllData.SHORTNAME_tablename.sh"
 
 filePath = ''
 out_file_path = ''
@@ -38,15 +38,19 @@ for td in allSchemeResultData:
     fieldStr = ''
     for fd in fieldResultData:
         ty = fd[0].upper()
+        fieldTri = fd[1].upper()
         if ty == 'INDEX':
             ty = '\\"INDEX\\"'
-        if tableUpper in ('CHAR','CHARACTER','NVARCHAR2','VARCHAR','VARCHAR2'):
+        if fieldTri in ('CHAR', 'NCHAR', 'VARCHAR', 'NVARCHAR', 'GRAPHIC', 'VARBRAPHIC', 'CHARACTER', 'VARCHAR2', 'NVARCHAR2', 'XMLTYPE'):
             fieldStr = fieldStr + "trim("+ty+"),"
         else:
             fieldStr = fieldStr + ty + ','
         if ty == 'CORPORATION':
             field1 = "select "
-    fieldStr = field1 + fieldStr.rstrip(',')+' from ${source_Table} where \$CONDITIONS'
+    if SHORTNAME == 'ERP':
+        fieldStr = field1 + fieldStr.rstrip(',') + ' from JNCW.${source_Table} where \$CONDITIONS'
+    else:
+        fieldStr = field1 + fieldStr.rstrip(',')+' from ${source_Table} where \$CONDITIONS'
     systemTable = SHORTNAME + '_' + tableLower
 
     out_file_path = os.path.join(outPath, "AllData.%s.sh" % systemTable)

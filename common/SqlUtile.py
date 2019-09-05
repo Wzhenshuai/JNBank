@@ -21,25 +21,26 @@ def getPDDicInfo(cursor,SHORTNANE):
 
 
 ## 获取非增量数据
-def getQLData(cursor,SHORTNAME):
+def getQLSchemeData(cursor,SHORTNAME):
     selectTableSql = "SELECT system_en_name,en_name,db_name FROM table_scheme WHERE system_name ='%s' and provideDate_way != '增量' AND or_extract='是'" % SHORTNAME
     cursor.execute(selectTableSql)
     QLResultData = cursor.fetchall()
     return QLResultData
 
 ## 获取增量数据scheme
-def getZLData(cursor,SHORTNAME):
-    selectTableSql = "SELECT system_en_name,en_name,db_name FROM table_scheme WHERE system_name ='%s' and provideDate_way = '增量' AND or_extract='是'" % SHORTNAME
-    cursor.execute(selectTableSql)
-    ZLResultData = cursor.fetchall()
-    return ZLResultData
-
-## 获取所有表数据 scheme
-def getALLSchemeData(cursor,schemeKey):
-    selectTableSql = "SELECT system_en_name,en_name ,ch_name,db_name,provideDate_way FROM table_scheme WHERE system_name ='%s' AND or_extract='是'" % schemeKey
+def getZLSchemeData(cursor,SHORTNANE):
+    selectTableSql = "SELECT system_en_name,en_name ,ch_name ,db_name FROM table_scheme WHERE system_name ='%s' AND or_extract='是' and provideDate_way = '增量'" % SHORTNANE
     cursor.execute(selectTableSql)
     AllSchemeResultData = cursor.fetchall()
     return AllSchemeResultData
+
+## 获取所有表数据 scheme
+def getALLSchemeData(cursor,SHORTNAME):
+    selectTableSql = "SELECT system_en_name,en_name ,ch_name,db_name,provideDate_way FROM table_scheme WHERE system_name ='%s' AND or_extract='是'" % SHORTNAME
+    cursor.execute(selectTableSql)
+    AllSchemeResultData = cursor.fetchall()
+    return AllSchemeResultData
+
 ## 获取以field 根据orNumber 排序
 def getTableFieldByKey(cursor,scheme_key):
     cursor.execute("SELECT field_code,field_type,field_len,field_accuracy,field_name,key_flag "
@@ -57,24 +58,6 @@ def getCORESchemeData(cursor,SHORTNANE):
 ## 获取数整指定表
 def otherTmp(cursor):
     selectTableSql = "SELECT system_en_name,en_name ,ch_name FROM table_scheme WHERE system_name ='CORE' AND en_name in ('ODS_UNIONALOD','ODS_CMMSCCST','ODS_YEP_FMS_ACCRUE_LOG')"
-    cursor.execute(selectTableSql)
-    AllSchemeResultData = cursor.fetchall()
-    return AllSchemeResultData
-## 获取信贷增量表
-def getZLCREDITTOWNData(cursor):
-    selectTableSql = "SELECT system_en_name,en_name ,ch_name FROM table_scheme WHERE system_name ='CREDIT' AND or_extract='是' AND core_town = '1' and provideDate_way = '增量'"
-    cursor.execute(selectTableSql)
-    AllSchemeResultData = cursor.fetchall()
-    return AllSchemeResultData
-## 获取信贷不是增量表
-def getQLCREDITTOWNData(cursor):
-    selectTableSql = "SELECT system_en_name,en_name ,ch_name FROM table_scheme WHERE system_name ='CREDIT' AND or_extract='是' AND core_town = '1' and provideDate_way != '增量'"
-    cursor.execute(selectTableSql)
-    AllSchemeResultData = cursor.fetchall()
-    return AllSchemeResultData
-
-def getAllCREDITTOWNData(cursor):
-    selectTableSql = "SELECT system_en_name,en_name ,ch_name FROM table_scheme WHERE system_name ='CREDIT' AND or_extract='是' AND core_town = '1'"
     cursor.execute(selectTableSql)
     AllSchemeResultData = cursor.fetchall()
     return AllSchemeResultData

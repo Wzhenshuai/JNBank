@@ -24,16 +24,13 @@ filePath = ''
 out_file_path = ''
 numIndex = 0
 if SHORTNAME == 'CREDITCORE':
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,'CREDIT')
     field1 = "select '815' as corporation ,"
 elif SHORTNAME == 'CREDITTOWN':
-    AllSchemeResultData = SqlUtile.getAllCREDITTOWNData(cursor)
     field1 = "select '615' as corporation ,"
 else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
     field1 = "select '815' as corporation ,"
 
-
+AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,SHORTNAME)
 for td in AllSchemeResultData:
     tableLower = td[1].lower()
     SHORTtableName = SHORTNAME + '_'+tableLower

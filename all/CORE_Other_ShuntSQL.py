@@ -93,11 +93,7 @@ for ta in allTable:
     f.write("\r truncate table CoreBankHist.%s;\r" % table_name)
     f.write("truncate table TownBankHist.%s;\r" % table_name)
 
-    f.write("\r\r\rset hive.enforce.bucketing = true;\r"
-            "set hive.exec.dynamic.partition=true;\r"
-            "set hive.exec.dynamic.partition.mode=nonstrict;\r"
-            "SET hive.exec.max.dynamic.partitions=100000;\r"
-            "SET hive.exec.max.dynamic.partitions.pernode=100000;\r")
+    f.write(ConstantUtile.setHiveStr)
 
     f.write("\r\r\r"+insert_CoreBankHist_str)
 

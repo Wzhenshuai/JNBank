@@ -2,9 +2,10 @@
 ## 仅用于 数整 ODS表的分流
 import pymysql
 import os, sys
-
-conn = pymysql.connect(host='127.0.0.1', user='root', password='woshibangbangde', db='datams', charset='utf8',
-                       port=3306)
+Path=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(Path)
+from common import SqlUtile, ConstantUtile
+conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
 cursor = conn.cursor()  # cursor当前的程序到数据之间连接管道
 
@@ -79,11 +80,7 @@ for ta in allTable:
     f.write("\r truncate table CoreBankHist.%s;\r" % table_name)
     f.write("truncate table TownBankHist.%s;\r" % table_name)
 
-    f.write("\r\r\rset hive.enforce.bucketing = true;\r"
-            "set hive.exec.dynamic.partition=true;\r"
-            "set hive.exec.dynamic.partition.mode=nonstrict;\r"
-            "SET hive.exec.max.dynamic.partitions=100000;\r"
-            "SET hive.exec.max.dynamic.partitions.pernode=100000;\r")
+    f.write(ConstantUtile.setHiveStr)
 
     f.write("\r\r\r"+insert_CoreBankHist_str)
 

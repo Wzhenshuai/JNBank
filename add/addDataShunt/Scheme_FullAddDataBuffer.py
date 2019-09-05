@@ -17,7 +17,7 @@ dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()
 
 ## 查询全量表数据
-FullResultData = SqlUtile.getQLData(cursor, SHORTNAME)
+FullResultData = SqlUtile.getQLSchemeData(cursor, SHORTNAME)
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
 os.chdir(sqlPath)
@@ -115,7 +115,7 @@ for ta in FullResultData:
 
     part_insert_2 = part_insert_2_1+part_insert_2_2+part_insert_2_3 + insert_fieldStr2.rstrip(',\r').replace('\r','') + part_insert_2_7+ part_insert_1_6_1+ insert_fieldStr2.rstrip(',\r').replace('\r','') + part_insert_2_6 +") ;"
 
-    part_insert_3_5 = "'CORE' as data_source_str from AddAnalyze.%s ;\r"% SHORT_DBNAME_tableName
+    part_insert_3_5 = "'%s' as data_source_str from AddAnalyze.%s ;\r"% (SHORTNAME,SHORT_DBNAME_tableName)
 
     part_insert_3 = part_insert_3_1+part_insert_3_2+part_insert_3_3+part_insert_3_3_1+select_insert_fieldStr+part_insert_3_5
 

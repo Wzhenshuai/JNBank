@@ -16,14 +16,9 @@ SHORTNAME = sys.argv[1].upper()
 ## 获取增量数据
 if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
-    #AllSchemeResultData = SqlUtile.otherTmp(cursor)
     SHORTNAME = 'CORE'
-elif SHORTNAME == 'CREDITCORE':
-    AllSchemeResultData = SqlUtile.getZLData(cursor,'CREDIT')
-elif SHORTNAME == 'CREDITTOWN':
-    AllSchemeResultData = SqlUtile.getZLCREDITTOWNData(cursor)
-else:
-    AllSchemeResultData = SqlUtile.getZLData(cursor, SHORTNAME)
+AllSchemeResultData = SqlUtile.getZLSchemeData(cursor,SHORTNAME)
+
 
 dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()
@@ -39,7 +34,7 @@ for ta in AllSchemeResultData:
     ##  获得该表的表 字段
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
 
-    SHORT_tableName = SHORTNAME+'_'+tableName.lower()
+    SHORT_tableName = SHORTNAME+'_'+tableName
     file_sql_name = "AddDataBuffer.%s.sql" % SHORT_tableName
     ## 拼接创建表 语句操作
     insert_tableName_str = "insert into AddRollData.%s \r " % SHORT_tableName

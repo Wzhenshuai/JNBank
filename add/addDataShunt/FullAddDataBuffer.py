@@ -18,12 +18,7 @@ sqlPath = dicResultData[0][0].upper()
 
 ## 查询增量表数据
 
-if SHORTNAME == 'CREDITCORE':
-    FullResultData = SqlUtile.getQLData(cursor,'CREDIT')
-elif SHORTNAME == 'CREDITTOWN':
-    FullResultData = SqlUtile.getQLCREDITTOWNData(cursor)
-else:
-    FullResultData = SqlUtile.getQLData(cursor, SHORTNAME)
+FullResultData = SqlUtile.getQLSchemeData(cursor, SHORTNAME)
     # ZLResultData = SqlUtile.otherTmp(cursor)
 if os.path.exists(sqlPath) is False:
     os.makedirs(sqlPath)
@@ -31,6 +26,7 @@ os.chdir(sqlPath)
 
 numIndex = 0
 for ta in FullResultData:
+
     numIndex += 1
     schemeKey = ta[0]
     tableName = ta[1]
@@ -44,8 +40,8 @@ for ta in FullResultData:
     part_insert_2_1 = "insert into AddBuffer.AddPureDelete \r select uniq() \r ,to_timestamp(SYSDATE)\r ,SYSDATE \r ,'AddRollData.%s'\r,"% SHORT_tableName
     part_insert_3_1 = "truncate table AddRollData.%s_Hbase;\r insert into AddRollData.%s_Hbase select\n " % (SHORT_tableName,SHORT_tableName)
 
-    unite_key_file = ""
-    unite_key_oth = ""
+    yes_keyFlag_fieldStr = ""
+    no_big_fieldStr = ""
     select_unite_key_file = ""
     insert_table_str = ""
     insert_fieldStr1 = ''
@@ -53,47 +49,54 @@ for ta in FullResultData:
     select_insert_fieldStr = ''
     create_fieldStr = ''
     insert_rowKey_str = ""
-    aaa = "无CORPORATION"
+    aaa = "NO_CORPORATION"
     key_flag = "无主键"
     for fie in fieldResultData:
-        key_comm = fie[5]
-        fieldName = fie[0].upper()
+        ## field_code,field_type,field_len,field_accuracy,field_name,key_flag
+        keyFlag = fie[5]
+        fieldCode = fie[0].upper()
         fieldType = fie[1].upper()
-        if fieldName == 'CORPORATION':
-            aaa = "有CORPORATION"
-        if key_comm == '是':
+
+        if keyFlag == '是':
             key_flag = "有主键"
-            unite_key_file = unite_key_file + "%s," % fieldName
+            yes_keyFlag_fieldStr = yes_keyFlag_fieldStr + "%s," % fieldCode
+            insert_fieldStr2 = insert_fieldStr2 + "COALESCE(`%s`,'ThisIsNULL') as `%s`,\r" % (fieldCode, fieldCode)
+        else:
             fieldTypeOth = CoverField.conver_field_oth(fieldType)
-            if fieldTypeOth == 1:
-                unite_key_oth = unite_key_oth + "'%s'," % fieldName
-            select_unite_key_file = select_unite_key_file + "%s," % fieldName
-        select_insert_fieldStr = select_insert_fieldStr + "`%s`,\r" % fieldName
-        if fieldType in ("CLOB", "BLOB"):
-            continue
-        insert_fieldStr1 = insert_fieldStr1 + "COALESCE(`%s`,'ThisIsNULL'),\r" % fieldName
-        insert_fieldStr2 = insert_fieldStr2 + "COALESCE(`%s`,'ThisIsNULL') as `%s`,\r" % (fieldName,fieldName)
-    if aaa == "无CORPORATION":
+            if fieldTypeOth == '1':
+            ## 不是大字段
+                no_big_fieldStr = no_big_fieldStr + "'%s'," % fieldCode
+        select_unite_key_file = select_unite_key_file + "%s," % fieldCode
+        select_insert_fieldStr = select_insert_fieldStr + "`%s`,\r" % fieldCode
+        if fieldType in ("CLOB", "BLOB","LONG RAW"):
+           continue
+        if fieldCode == 'CORPORATION':
+            aaa = "YES_CORPORATION"
+        if key_flag == "无主键":
+            insert_fieldStr2 = insert_fieldStr2 + "COALESCE(`%s`,'ThisIsNULL') as `%s`,\r" % (fieldCode, fieldCode)
+        insert_fieldStr1 = insert_fieldStr1 + "COALESCE(`%s`,'ThisIsNULL'),\r" % fieldCode
+
+    if aaa == "NO_CORPORATION":
         # 没有CORPORATION 处理
-        unite_key_file = 'CORPORATION,' + unite_key_file
-        select_unite_key_file = 'CORPORATION,' + select_unite_key_file
+        yes_keyFlag_fieldStr = 'CORPORATION,' + yes_keyFlag_fieldStr
+        #select_unite_key_file = 'CORPORATION,' + select_unite_key_file
         select_insert_fieldStr = 'CORPORATION,\r' + select_insert_fieldStr
-        unite_key_oth = "'CORPORATION'," + unite_key_oth
+        no_big_fieldStr = "'CORPORATION'," + no_big_fieldStr
     if key_flag == "无主键":
         #没有主键 处理一下
         part_insert_1_2 = "uniq() as rowkeystr,\r"
-        part_insert_2_2 = "concat("+unite_key_oth.rstrip(",\r")+"'%s')as rowkeystr\r" % SHORTNAME
+        part_insert_2_2 = "concat("+no_big_fieldStr.rstrip(",\r")+")as rowkeystr\r"
         part_insert_3_2 = part_insert_1_2
     else:
-        part_insert_1_2 = "concat(" + unite_key_file.rstrip(",\r") + ')as rowkeystr,\r'
-        part_insert_2_2 = "concat(" + select_unite_key_file.rstrip(",\r") + ')as rowkeystr\r'
+        part_insert_1_2 = "concat(" + yes_keyFlag_fieldStr.rstrip(",\r") + ')as rowkeystr,\r'
+        part_insert_2_2 = "concat(" + yes_keyFlag_fieldStr.rstrip(",\r") + ')as rowkeystr\r'
         part_insert_3_2 = part_insert_1_2
 
     part_insert_1_3 = "(select distinct CycleId from AddBuffer.AddDateCycleId WHERE System_JC='%s') as dataday_id," % SHORTNAME
     part_insert_3_3 = part_insert_1_3
     part_insert_1_3_1 = "\r SYSDATE, \r "
     part_insert_3_3_1 = "\r SYSDATE  as tdh_load_timestamp, \r"
-    if aaa == 0:
+    if aaa == 'NO_CORPORATION':
         insert_table_str = insert_table_str + 'CORPORATION,\r'
         insert_fieldStr1 = 'CORPORATION,\r' + insert_fieldStr1
         insert_fieldStr2 = 'CORPORATION,\r' + insert_fieldStr2
@@ -121,7 +124,7 @@ for ta in FullResultData:
     part_insert_2 = part_insert_2_1+part_insert_2_2+part_insert_2_3 + insert_fieldStr2.rstrip(',\r').replace('\r','') + part_insert_2_7+ \
                     part_insert_1_6_1+ insert_fieldStr2.rstrip(',\r').replace('\r','') + part_insert_2_6 +") ;"
 
-    part_insert_3_5 = "'CORE' as data_source_str from AddAnalyze.%s ;\r"% SHORT_tableName
+    part_insert_3_5 = "'%s' as data_source_str from AddAnalyze.%s ;\r"% (SHORTNAME,SHORT_tableName)
 
     part_insert_3 = part_insert_3_1+part_insert_3_2+part_insert_3_3+part_insert_3_3_1+select_insert_fieldStr+part_insert_3_5
 

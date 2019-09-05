@@ -16,12 +16,7 @@ if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
     #SYSTEM_SHORTNAME = 'CORE'
     SHORTNAME = 'CORE'
-elif SHORTNAME == 'CREDITCORE':
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,'CREDIT')
-elif SHORTNAME == 'CREDITTOWN':
-    AllSchemeResultData = SqlUtile.getAllCREDITTOWNData(cursor)
-else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
+AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 path = r"E:\mnt\JN_shell\Create_tables\AddBuffer"
 
 out_file_path = os.path.join(path, "%s.AddBufferHisAdd.sql" % SHORTNAME)

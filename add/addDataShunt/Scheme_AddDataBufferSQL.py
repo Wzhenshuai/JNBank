@@ -14,7 +14,7 @@ SHORTNAME = sys.argv[1].upper()
 
 # 获取所有表
 ## 获取增量数据
-AllSchemeResultData = SqlUtile.getZLData(cursor, SHORTNAME)
+AllSchemeResultData = SqlUtile.getZLSchemeData(cursor, SHORTNAME)
 
 dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()
@@ -27,7 +27,7 @@ for ta in AllSchemeResultData:
     numIndex += 1
     schemeKey = ta[0]
     tableName = ta[1].lower()
-    DBNAME = ta[2].upper()
+    DBNAME = ta[3].upper()
     ##  获得该表的表 字段
     fieldResultData = SqlUtile.getTableFieldByKey(cursor, schemeKey)
 

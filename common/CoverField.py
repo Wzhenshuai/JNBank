@@ -83,7 +83,8 @@ def convert_fieldTypeAll(fieldType,fieldLen,fieldAccuracy):
     return field_type
 
 def conver_field_oth(fieldType):
-    if fieldType in ('nclob', 'long varchar', 'text', 'mediumString', 'longString', 'longtext', 'mediumtext', 'tinytext','long raw', 'longraw', 'raw'):
+    fieldType = fieldType.upper()
+    if fieldType in ('NCLOB', 'LONG VARCHAR', 'TEXT', 'MEDIUMSTRING', 'LONGSTRING', 'LONGTEXT', 'MEDIUMTEXT', 'TINYTEXT','LONG RAW', 'LONGRAW', 'RAW','BINARY'):
         field_type = '0'
     else:
         field_type = '1'

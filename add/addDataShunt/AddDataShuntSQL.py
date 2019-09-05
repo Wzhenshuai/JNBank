@@ -16,12 +16,7 @@ if SHORTNAME.startswith('CORE'):
     AllSchemeResultData = SqlUtile.getCORESchemeData(cursor, SHORTNAME)
     #AllSchemeResultData = SqlUtile.otherTmp(cursor)
     SHORTNAME = 'CORE'
-elif SHORTNAME == 'CREDITCORE':
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor,'CREDIT')
-elif SHORTNAME == 'CREDITTOWN':
-    AllSchemeResultData = SqlUtile.getAllCREDITTOWNData(cursor)
-else:
-    AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
+AllSchemeResultData = SqlUtile.getALLSchemeData(cursor, SHORTNAME)
 
 dicResultData = SqlUtile.getDicInfo(cursor, SHORTNAME)
 sqlPath = dicResultData[0][0].upper()

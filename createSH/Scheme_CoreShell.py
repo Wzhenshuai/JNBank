@@ -20,7 +20,7 @@ dictSql = SqlUtile.getPDDicInfo(cursor,SHORTNAME)
 outPath = dictSql[0][2]
 # 模版路径
 
-allTempFilePath = r"E:\mnt\template\CREDIT.shell\Core_agentShell\AllData.Scheme.SHORTNAME_tablename.sh"
+allTempFilePath = r"E:\mnt\template\all\AllData.Scheme.SHORTNAME_tablename.sh"
 
 filePath = ''
 out_file_path = ''

@@ -5,7 +5,7 @@ import sys
 
 Path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(Path)
-from common import SqlUtile
+from common import SqlUtile,ConstantUtile
 
 conn = SqlUtile.mysqlLogin()
 # 第二步：创建游标  对象
@@ -76,11 +76,7 @@ for ta in AllSchemeResultData:
             "use CoreBankHist;\r"
             "truncate table %s;\r" % SHORTNAME_DBNAME_tableName )
 
-    f.write("\r\r\rset hive.enforce.bucketing = true;\r"
-            "set hive.exec.dynamic.partition=true;\r"
-            "set hive.exec.dynamic.partition.mode=nonstrict;\r"
-            "SET hive.exec.max.dynamic.partitions=100000;\r"
-            "SET hive.exec.max.dynamic.partitions.pernode=100000;\r")
+    f.write(ConstantUtile.setHiveStr)
 
     f.write("\r\r\r"+insert_CoreBankHist_str)
     f.write("\r\r!q")

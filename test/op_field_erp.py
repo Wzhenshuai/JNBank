@@ -6,21 +6,12 @@ import os, sys
 
 
 def read_file(fileDir,outDir):
-    StringStr = ""
-    f = open(fileDir, 'r', encoding='utf-8')
-    lines = f.readlines()
-    #for li in lines:
-    #    enName = li.split(';')[0].upper()
-    #    cnName = li.split(';')[1]
-    #    StringStr = StringStr + "INSERT INTO table_scheme (`system_name`, `ch_name`, `en_name`, `or_extract`, `system_en_name`) " \
-    #                            "VALUES ('ERP', '%s', '%s', '是', 'ERP_%s');\r" %(cnName,enName,enName)
-    for li in lines:
-        enName = li.split(';')[0].upper()
-        enNames = 'ERP_%s'%enName
-        StringStr = StringStr +"'"+enNames+"',"
+
+    StringStr = "HHHHHHHHHHHHHHHNNNNNNNNNNNNN \n nnnnnnnnnnnnn \n\n"
+    StringStr2 = "RRRRRRRRRRRRRRRRRRRRRRRRRRR \r\r XXXXXXXXXXXXXX \r\r"
     wf = open(outDir, 'w', encoding='utf-8')
     wf.write(StringStr)
-    f.close()
+    wf.write(StringStr2)
 
 
 if __name__ == '__main__':
